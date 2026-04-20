@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Beta Hours</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#111111;--navy-mid:#1c1c1c;--gold:#d4a017;--gold-light:#f0c040;--gold-pale:#fdf6e0;--cream:#f7f5f0;--white:#fff;--text:#1a1a1a;--text-muted:#6b6b6b;--text-light:#9a9a9a;--border:rgba(0,0,0,0.10);--border-strong:rgba(0,0,0,0.22);--success-bg:#eaf4ee;--success:#2d7a47;--danger-bg:#fdeaea;--danger:#c0392b;--pending-bg:#fff8e6;--pending:#b07d1a;--radius:10px;--radius-lg:16px;--shadow-md:0 4px 24px rgba(0,0,0,0.18)}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+.screen{display:none}.screen.active{display:flex;flex-direction:column;min-height:100vh}
+nav{background:var(--navy);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;flex-shrink:0}
+.nav-logo{font-family:'Libre Baskerville',serif;color:var(--gold-light);font-size:15px;display:flex;align-items:center;gap:10px}
+.logo-icon{width:30px;height:30px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:16px;height:16px;fill:var(--navy)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-user{color:rgba(255,255,255,0.7);font-size:13px}
+.nav-btn{background:rgba(255,255,255,0.1);border:0.5px solid rgba(255,255,255,0.2);color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif}
+.nav-btn:hover{background:rgba(255,255,255,0.18)}
+#login-screen{align-items:center;justify-content:center;background:var(--navy)}
+.login-card{background:var(--white);border-radius:var(--radius-lg);padding:40px 36px;width:380px;box-shadow:var(--shadow-md)}
+.login-header{text-align:center;margin-bottom:28px}
+.login-seal{width:60px;height:60px;background:var(--navy);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.login-seal svg{width:32px;height:32px;fill:var(--gold-light)}
+.login-title{font-family:'Libre Baskerville',serif;font-size:20px;color:var(--navy);margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--text-muted)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:0.5px solid var(--border-strong);border-radius:var(--radius);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--navy)}
+.field textarea{resize:vertical;min-height:70px}
+.btn-primary{width:100%;background:var(--navy);color:var(--white);border:none;padding:12px;border-radius:var(--radius);font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:4px}
+.btn-primary:hover{background:var(--navy-mid)}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed}
+.btn-secondary{background:transparent;color:var(--navy);border:0.5px solid var(--border-strong);padding:9px 18px;border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer}
+.btn-secondary:hover{background:var(--cream)}
+.btn-gold{background:var(--gold);color:var(--navy);border:none;padding:9px 18px;border-radius:var(--radius);font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
+.btn-gold:hover{background:var(--gold-light)}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:0.5px solid rgba(192,57,43,0.2);padding:9px 18px;border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer}
+.btn-danger-solid{background:var(--danger);color:#fff;border:none;padding:9px 18px;border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer}
+.link-btn{background:none;border:none;color:var(--navy);font-weight:500;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;text-decoration:underline}
+.error-msg{background:var(--danger-bg);color:var(--danger);font-size:13px;padding:10px 12px;border-radius:6px;margin-bottom:14px;display:none}
+.success-msg{background:var(--success-bg);color:var(--success);font-size:13px;padding:10px 12px;border-radius:6px;margin-bottom:14px;display:none}
+.login-toggle{text-align:center;margin-top:18px;font-size:13px;color:var(--text-muted)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-grid .full{grid-column:1/-1}
+.main-layout{display:flex;flex:1}
+.sidebar{width:200px;background:var(--white);border-right:0.5px solid var(--border);padding:20px 0;flex-shrink:0}
+.sidebar-link{display:block;padding:10px 20px;font-size:13px;color:var(--text-muted);cursor:pointer;border-left:3px solid transparent;transition:all 0.12s}
+.sidebar-link:hover{color:var(--navy);background:var(--cream)}
+.sidebar-link.active{color:var(--navy);border-left-color:var(--gold);background:var(--gold-pale);font-weight:500}
+.sidebar-section{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-light);padding:16px 20px 6px}
+.content{flex:1;padding:28px 32px;overflow-y:auto;max-width:900px}
+.page-header{margin-bottom:24px}
+.page-title{font-family:'Libre Baskerville',serif;font-size:22px;color:var(--navy);margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--text-muted)}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
+.stat-card{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px}
+.stat-label{font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:500}
+.stat-val{font-size:28px;font-weight:300;color:var(--navy)}
+.stat-val span{font-size:14px;color:var(--text-muted)}
+.card{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);margin-bottom:20px}
+.card-header{padding:16px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:500;color:var(--navy)}
+.card-body{padding:20px}
+.sub-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:0.5px solid var(--border)}
+.sub-row:last-child{border-bottom:none}
+.sub-row.clickable{cursor:pointer;border-radius:var(--radius);padding:12px 8px;margin:0 -8px;transition:background 0.12s}
+.sub-row.clickable:hover{background:var(--gold-pale)}
+.sub-row.clickable:last-child{border-bottom:none}
+.sub-event{font-size:14px;font-weight:500}
+.sub-date{font-size:12px;color:var(--text-muted);margin-top:2px}
+.sub-hrs{font-size:18px;font-weight:300;color:var(--navy);margin-right:16px}
+.sub-right{display:flex;align-items:center;gap:10px}
+.chevron{color:var(--text-light);font-size:16px}
+.badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px}
+.badge-pending{background:var(--pending-bg);color:var(--pending)}
+.badge-approved{background:var(--success-bg);color:var(--success)}
+.badge-rejected{background:var(--danger-bg);color:var(--danger)}
+.sig-area{border:0.5px solid var(--border-strong);border-radius:var(--radius);overflow:hidden}
+.sig-label{font-size:11px;color:var(--text-muted);padding:8px 12px;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-action:none;background:#fff}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);border-bottom:0.5px solid var(--border-strong)}
+td{padding:12px 14px;border-bottom:0.5px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--cream)}
+.hrs-big{font-size:16px;font-weight:300;color:var(--navy)}
+.admin-actions{display:flex;gap:8px}
+.filter-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.filter-row input,.filter-row select{padding:8px 12px;border:0.5px solid var(--border-strong);border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;background:var(--white);outline:none}
+.filter-row input{flex:1;min-width:160px}
+.approve-count{font-size:11px;background:var(--success-bg);color:var(--success);padding:2px 8px;border-radius:20px;font-weight:500}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px}
+.loading-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;font-style:italic}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(26,39,68,0.4);z-index:100;align-items:center;justify-content:center}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--white);border-radius:var(--radius-lg);width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+.modal-head{padding:20px 24px 16px;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-family:'Libre Baskerville',serif;font-size:16px;color:var(--navy)}
+.modal-close{background:none;border:none;font-size:20px;color:var(--text-muted);cursor:pointer;line-height:1}
+.modal-body{padding:20px 24px}
+.modal-foot{padding:16px 24px;border-top:0.5px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.modal-back{background:none;border:none;color:var(--text-muted);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:4px;padding:0}
+.modal-back:hover{color:var(--navy)}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-label{color:var(--text-muted)}
+.detail-val{font-weight:500}
+.sig-preview{border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:12px}
+.sig-preview-label{font-size:11px;color:var(--text-muted);padding:6px 12px;background:var(--cream);border-bottom:0.5px solid var(--border)}
+
+@media (max-width: 640px) {
+  /* Login */
+  .login-card{width:100%;max-width:100%;min-height:100vh;border-radius:0;padding:40px 24px;display:flex;flex-direction:column;justify-content:center}
+  #login-screen{align-items:stretch;justify-content:flex-start}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid .full{grid-column:1}
+
+  /* Nav */
+  nav{padding:0 16px;height:52px}
+  .nav-user{display:none}
+  .nav-logo{font-size:14px}
+
+  /* Layout — sidebar becomes bottom tab bar */
+  .main-layout{flex-direction:column}
+  .sidebar{
+    width:100%;
+    order:2;
+    border-right:none;
+    border-top:0.5px solid var(--border);
+    padding:0;
+    display:flex;
+    flex-direction:row;
+    position:sticky;
+    bottom:0;
+    z-index:10;
+    background:var(--white);
+  }
+  .sidebar-section{display:none}
+  .sidebar-link{
+    flex:1;
+    text-align:center;
+    padding:10px 4px;
+    font-size:11px;
+    border-left:none;
+    border-top:3px solid transparent;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .sidebar-link.active{
+    border-left:none;
+    border-top-color:var(--gold);
+    background:var(--gold-pale);
+  }
+  .approve-count{display:none}
+
+  /* Content */
+  .content{padding:20px 16px;max-width:100%}
+  .page-title{font-size:18px}
+
+  /* Stats */
+  .stats-row{grid-template-columns:1fr 1fr !important;gap:10px}
+  .stat-val{font-size:22px}
+
+  /* Cards */
+  .card-body{padding:14px}
+
+  /* Tables — convert to card-style rows */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{font-size:12px;min-width:480px}
+  th{padding:8px 10px;font-size:10px}
+  td{padding:10px 10px}
+  .admin-actions{flex-wrap:wrap;gap:6px}
+  .admin-actions button{font-size:11px !important;padding:4px 8px !important}
+
+  /* Modals */
+  .modal{width:100% !important;max-width:100%;max-height:85vh;border-radius:var(--radius-lg) var(--radius-lg) 0 0;position:fixed;bottom:0;left:0;right:0}
+  .modal-backdrop.open{align-items:flex-end}
+  .modal-body{padding:16px 20px}
+  .modal-head{padding:16px 20px 12px}
+  .modal-foot{padding:12px 20px;flex-wrap:wrap}
+  .modal-foot button{flex:1;min-width:100px;text-align:center}
+
+  /* Sub rows */
+  .sub-hrs{font-size:15px;margin-right:8px}
+  .sub-event{font-size:13px}
+
+  /* Sig canvas */
+  canvas#sigCanvas{height:120px}
+
+  /* Filter row */
+  .filter-row{flex-direction:column;align-items:stretch}
+  .filter-row input,.filter-row select{width:100%;min-width:unset}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="screen active">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-seal"><svg viewBox="0 0 24 24"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg></div>
+      <div class="login-title">Beta Hours</div>
+      <div class="login-sub">Beta Club Hours Portal</div>
+    </div>
+    <div id="login-form">
+      <div id="login-error" class="error-msg"></div>
+      <div class="field"><label>Username</label><input type="text" id="login-user" placeholder="e.g. jsmith23"/></div>
+      <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••"/></div>
+      <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign In</button>
+      <div class="login-toggle">Don't have an account? <button class="link-btn" onclick="showRegister()">Request access</button></div>
+    </div>
+    <div id="register-form" style="display:none">
+      <div id="reg-success" class="success-msg"></div>
+      <div id="reg-error" class="error-msg"></div>
+      <div class="form-grid">
+        <div class="field"><label>First Name</label><input type="text" id="reg-first" placeholder="Jane"/></div>
+        <div class="field"><label>Last Name</label><input type="text" id="reg-last" placeholder="Smith"/></div>
+      </div>
+      <div class="field"><label>Username</label><input type="text" id="reg-user" placeholder="jsmith23"/></div>
+      <div class="field"><label>Password</label><input type="password" id="reg-pass" placeholder="••••••••"/></div>
+      <div class="field"><label>Grade</label>
+        <select id="reg-grade"><option value="">Select grade</option><option>11th</option><option>12th</option></select>
+      </div>
+      <button class="btn-primary" id="reg-btn" onclick="doRegister()">Submit Request</button>
+      <div class="login-toggle">Already have an account? <button class="link-btn" onclick="showLogin()">Sign in</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENT -->
+<div id="student-screen" class="screen">
+  <nav>
+    <div class="nav-logo"><div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg></div>Beta Hours</div>
+    <div class="nav-right"><span class="nav-user" id="student-nav-name"></span><button class="nav-btn" onclick="doLogout()">Sign Out</button></div>
+  </nav>
+  <div class="main-layout">
+    <div class="sidebar">
+      <div class="sidebar-section">Student</div>
+      <div class="sidebar-link active" onclick="showStudentTab('dashboard',this)">Dashboard</div>
+      <div class="sidebar-link" onclick="showStudentTab('submit',this)">Submit Hours</div>
+      <div class="sidebar-link" onclick="showStudentTab('history',this)">My Submissions</div>
+    </div>
+    <div class="content">
+      <div id="student-dashboard">
+        <div class="page-header"><div class="page-title" id="student-greeting">Welcome back</div><div class="page-sub">Here's a summary of your service hours.</div></div>
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat-card"><div class="stat-label">Approved Hours</div><div class="stat-val" id="s-approved-hrs">— <span>hrs</span></div></div>
+          <div class="stat-card"><div class="stat-label">Sponsored Hours</div><div class="stat-val" id="s-sponsored-hrs">— <span>hrs</span></div></div>
+          <div class="stat-card"><div class="stat-label">Pending Review</div><div class="stat-val" id="s-pending-hrs">— <span>hrs</span></div></div>
+        </div>
+        <div class="card"><div class="card-header"><div class="card-title">Recent Submissions</div></div><div class="card-body" id="student-recent-list"><div class="loading-state">Loading...</div></div></div>
+      </div>
+      <div id="student-submit" style="display:none">
+        <div class="page-header"><div class="page-title">Submit Hours</div><div class="page-sub">Complete all fields and have your event sponsor sign below.</div></div>
+        <div class="card"><div class="card-body">
+          <div id="submit-success" class="success-msg"></div>
+          <div id="submit-error" class="error-msg"></div>
+          <div class="form-grid">
+            <div class="field full"><label>Event Name</label><input type="text" id="evt-name" placeholder="e.g. Food Bank Volunteer Day"/></div>
+            <div class="field"><label>Event Date</label><input type="date" id="evt-date"/></div>
+            <div class="field"><label>Hours Served</label><input type="number" id="evt-hours" min="0.5" max="24" step="0.5" placeholder="2.5"/></div>
+            <div class="field full"><label>Sponsor / Organization Name</label><input type="text" id="evt-sponsor" placeholder="e.g. Ms. Johnson — Community Food Bank"/></div>
+            <div class="field full"><label>Description (optional)</label><textarea id="evt-desc" placeholder="Brief description of what you did..."></textarea></div>
+            <div class="field full">
+              <label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:14px;cursor:pointer">
+                <input type="checkbox" id="evt-sponsored" style="width:18px;height:18px;cursor:pointer;accent-color:var(--navy)"/>
+                This is a <strong>sponsored</strong> event (organized or endorsed by the club)
+              </label>
+            </div>
+            <div class="field full">
+              <label>Sponsor Digital Signature</label>
+              <div class="sig-area">
+                <div class="sig-label"><span>Have your sponsor sign in the box below</span><button class="link-btn" onclick="clearSig()">Clear</button></div>
+                <canvas id="sigCanvas"></canvas>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:20px"><button class="btn-primary" id="submit-btn" onclick="submitHours()" style="width:auto;padding:12px 32px">Submit for Approval</button></div>
+        </div></div>
+      </div>
+      <div id="student-history" style="display:none">
+        <div class="page-header"><div class="page-title">My Submissions</div><div class="page-sub">All your submitted hours and their status.</div></div>
+        <div class="card"><div class="card-body" id="student-history-list"><div class="loading-state">Loading...</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin-screen" class="screen">
+  <nav>
+    <div class="nav-logo"><div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg></div>Beta Hours<span style="color:var(--gold);font-size:12px;margin-left:4px">— Admin</span></div>
+    <div class="nav-right"><button class="nav-btn" onclick="exportCSV()">Export CSV</button><button class="nav-btn" onclick="doLogout()">Sign Out</button></div>
+  </nav>
+  <div class="main-layout">
+    <div class="sidebar">
+      <div class="sidebar-section">Admin</div>
+      <div class="sidebar-link active" onclick="showAdminTab('students',this)">Students</div>
+      <div class="sidebar-link" onclick="showAdminTab('submissions',this)">All Submissions</div>
+      <div class="sidebar-link" onclick="showAdminTab('pending-accounts',this)">Pending Accounts <span id="pending-badge" class="approve-count" style="margin-left:6px"></span></div>
+    </div>
+    <div class="content">
+      <div id="admin-students">
+        <div class="page-header"><div class="page-title">Student Roster</div><div class="page-sub">Click a student to view their submissions.</div></div>
+        <div class="filter-row">
+          <input type="text" id="student-search" placeholder="Search by name or username..." oninput="renderStudentTable()"/>
+          <select id="grade-filter" onchange="renderStudentTable()"><option value="">All grades</option><option>11th</option><option>12th</option></select>
+        </div>
+        <div class="card"><div class="table-wrap"><table>
+          <thead><tr><th>Student</th><th>Grade</th><th>Approved Hrs</th><th>Sponsored Hrs</th><th>Pending Hrs</th><th></th></tr></thead>
+          <tbody id="student-tbody"><tr><td colspan="5"><div class="loading-state">Loading...</div></td></tr></tbody>
+        </table></div></div>
+      </div>
+      <div id="admin-submissions" style="display:none">
+        <div class="page-header"><div class="page-title">All Submissions</div><div class="page-sub">Review, approve, or reject individual hour submissions.</div></div>
+        <div class="filter-row">
+          <input type="text" id="sub-search" placeholder="Search event or student..." oninput="renderSubmissionsTable()"/>
+          <select id="sub-status-filter" onchange="renderSubmissionsTable()"><option value="">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
+        </div>
+        <div class="card"><div class="table-wrap"><table>
+          <thead><tr><th>Student</th><th>Event</th><th>Date</th><th>Hours</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="submissions-tbody"><tr><td colspan="6"><div class="loading-state">Loading...</div></td></tr></tbody>
+        </table></div></div>
+      </div>
+      <div id="admin-pending-accounts" style="display:none">
+        <div class="page-header"><div class="page-title">Pending Account Requests</div><div class="page-sub">Approve or deny student registration requests.</div></div>
+        <div class="card"><div class="card-body" id="pending-accounts-list"><div class="loading-state">Loading...</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Student detail -->
+<div class="modal-backdrop" id="student-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="modal-back" id="student-modal-back" onclick="backToStudentList()" style="display:none">&#8592; Back</button>
+        <div class="modal-title" id="modal-student-name"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('student-modal')">&#215;</button>
+    </div>
+    <div class="modal-body" id="modal-student-body"></div>
+    <div class="modal-foot" id="modal-student-foot"></div>
+  </div>
+</div>
+
+<!-- MODAL: Submission detail -->
+<div class="modal-backdrop" id="sub-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="sub-modal-title"></div>
+      <button class="modal-close" onclick="closeModal('sub-modal')">&#215;</button>
+    </div>
+    <div class="modal-body" id="sub-modal-body"></div>
+    <div class="modal-foot" id="sub-modal-foot"></div>
+  </div>
+</div>
+
+<!-- MODAL: Rejection comment -->
+<div class="modal-backdrop" id="reject-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-head">
+      <div class="modal-title">Reject Submission</div>
+      <button class="modal-close" onclick="closeModal('reject-modal')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--text-muted);margin-bottom:16px">Optionally add a note explaining why this submission is being rejected. The student will see this.</p>
+      <div class="field">
+        <label>Rejection Note (optional)</label>
+        <textarea id="rejection-comment" placeholder="e.g. Signature is missing, please resubmit..." style="width:100%;padding:10px 12px;border:0.5px solid var(--border-strong);border-radius:var(--radius);font-size:14px;font-family:'DM Sans',sans-serif;min-height:90px;resize:vertical;outline:none"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-secondary" onclick="closeModal('reject-modal')">Cancel</button>
+      <button class="btn-danger-solid" onclick="confirmReject()">Reject Submission</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Remove member confirmation -->
+<div class="modal-backdrop" id="remove-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-head">
+      <div class="modal-title">Remove Member</div>
+      <button class="modal-close" onclick="closeModal('remove-modal')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--text-muted);margin-bottom:12px">You are about to remove:</p>
+      <p style="font-size:16px;font-weight:500;color:var(--navy)" id="remove-name"></p>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:4px" id="remove-meta"></p>
+      <div style="background:var(--danger-bg);border:0.5px solid rgba(192,57,43,0.2);border-radius:var(--radius);padding:12px 14px;margin-top:16px;font-size:13px;color:var(--danger)">
+        This will permanently delete their account and all associated hour submissions. This cannot be undone.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-secondary" onclick="closeModal('remove-modal')">Cancel</button>
+      <button class="btn-danger-solid" onclick="removeMember()">Yes, Remove Member</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+//  CONFIGURATION
+//  Fill these in from Supabase > Settings > API
+// ─────────────────────────────────────────
+const SUPABASE_URL = 'https://lllaerixuqscymuavshl.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_mdRpBjDc1SYLQE4EB4BrDQ_929eMs2I';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ─────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────
+let currentProfile  = null;
+let allProfiles     = [];
+let allSubmissions  = [];
+let studentModalCtx = null;
+let sigData         = null;
+let isDrawing       = false;
+
+// ─────────────────────────────────────────
+//  BOOT
+// ─────────────────────────────────────────
+let appReady = false;
+
+window.addEventListener('DOMContentLoaded', async () => {
+  // Use getSession on load only — don't use onAuthStateChange for initial boot
+  // to avoid double-firing and lock conflicts
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    await bootUser(session.user);
+  }
+  appReady = true;
+});
+
+async function bootUser(user) {
+  const { data: rows } = await sb.from('profiles').select('*').eq('id', user.id).limit(1);
+  const profile = rows && rows.length > 0 ? rows[0] : null;
+  if (!profile) {
+    await sb.auth.signOut();
+    showScreen('login-screen');
+    return;
+  }
+  if (!profile.approved) {
+    await sb.auth.signOut();
+    showErr('login-error', 'Your account is pending admin approval.');
+    showScreen('login-screen');
+    return;
+  }
+  currentProfile = profile;
+  if (profile.role === 'admin') {
+    showScreen('admin-screen');
+    await loadAdminData();
+  } else {
+    showStudentScreen();
+  }
+}
+
+// ─────────────────────────────────────────
+//  AUTH
+// ─────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (!document.getElementById('login-screen').classList.contains('active')) return;
+  if (document.getElementById('register-form').style.display !== 'none') doRegister();
+  else doLogin();
+});
+
+async function doLogin() {
+  const username = document.getElementById('login-user').value.trim();
+  const password = document.getElementById('login-pass').value;
+  hideErr('login-error');
+  setBtnLoading('login-btn', true, 'Signing in...');
+
+  // Look up email by username
+  const { data: rows } = await sb.from('profiles').select('email').eq('username', username).limit(1);
+  const found = rows && rows.length > 0 ? rows[0] : null;
+  if (!found) {
+    showErr('login-error', 'Invalid username or password.');
+    setBtnLoading('login-btn', false, 'Sign In');
+    return;
+  }
+
+  // Sign in with Supabase auth
+  const { data, error } = await sb.auth.signInWithPassword({ email: found.email, password });
+  if (error) {
+    showErr('login-error', 'Invalid username or password.');
+    setBtnLoading('login-btn', false, 'Sign In');
+    return;
+  }
+
+  // Manually boot — don't rely on onAuthStateChange
+  await bootUser(data.user);
+  setBtnLoading('login-btn', false, 'Sign In');
+}
+
+async function doRegister() {
+  const first    = document.getElementById('reg-first').value.trim();
+  const last     = document.getElementById('reg-last').value.trim();
+  const username = document.getElementById('reg-user').value.trim();
+  const password = document.getElementById('reg-pass').value;
+  const grade    = document.getElementById('reg-grade').value;
+  hideErr('reg-error'); hideMsg('reg-success');
+
+  if (!first || !last || !username || !password || !grade) {
+    showErr('reg-error', 'Please fill in all fields.'); return;
+  }
+  if (password.length < 8) {
+    showErr('reg-error', 'Password must be at least 8 characters.'); return;
+  }
+
+  setBtnLoading('reg-btn', true, 'Submitting...');
+
+  // Check username availability
+  const { data: existing } = await sb.from('profiles').select('id').eq('username', username).limit(1);
+  if (existing && existing.length > 0) {
+    showErr('reg-error', 'That username is already taken.');
+    setBtnLoading('reg-btn', false, 'Submit Request');
+    return;
+  }
+
+  const email = `${username}@clubhours.internal`;
+  const { data, error } = await sb.auth.signUp({ email, password });
+
+  if (error) {
+    showErr('reg-error', error.message);
+    setBtnLoading('reg-btn', false, 'Submit Request');
+    return;
+  }
+
+  await sb.from('profiles').insert({
+    id:        data.user.id,
+    email,
+    username,
+    full_name: `${first} ${last}`,
+    grade,
+    role:      'student',
+    approved:  false
+  });
+
+  // Sign out immediately — admin must approve first
+  await sb.auth.signOut();
+
+  showMsg('reg-success', 'Request submitted! An admin will review your account shortly.');
+  ['reg-first','reg-last','reg-user','reg-pass'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('reg-grade').value = '';
+  setBtnLoading('reg-btn', false, 'Submit Request');
+}
+
+async function doLogout() {
+  currentProfile = null;
+  allProfiles = [];
+  allSubmissions = [];
+  await sb.auth.signOut();
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('sb-')) localStorage.removeItem(key);
+  });
+  showScreen('login-screen');
+  setBtnLoading('login-btn', false, 'Sign In');
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  hideErr('login-error');
+}
+
+// ─────────────────────────────────────────
+//  STUDENT SCREEN
+// ─────────────────────────────────────────
+function showStudentScreen() {
+  document.getElementById('student-nav-name').textContent = currentProfile.full_name;
+  document.getElementById('student-greeting').textContent = 'Welcome back, ' + currentProfile.full_name.split(' ')[0];
+  showScreen('student-screen');
+  loadStudentDashboard();
+}
+
+async function fetchMySubs() {
+  const { data } = await sb.from('submissions').select('*')
+    .eq('user_id', currentProfile.id).order('created_at');
+  return data || [];
+}
+
+async function loadStudentDashboard() {
+  const subs = await fetchMySubs();
+  const approved = subs.filter(s => s.status === 'approved').reduce((a, s) => a + s.hours, 0);
+  const pending  = subs.filter(s => s.status === 'pending').reduce((a, s) => a + s.hours, 0);
+  const sponsored = subs.filter(s => s.status === 'approved' && s.is_sponsored).reduce((a, s) => a + s.hours, 0);
+  document.getElementById('s-approved-hrs').innerHTML  = approved  + ' <span>hrs</span>';
+  document.getElementById('s-sponsored-hrs').innerHTML = sponsored + ' <span>hrs</span>';
+  document.getElementById('s-pending-hrs').innerHTML   = pending   + ' <span>hrs</span>';
+  const recent = [...subs].reverse().slice(0, 3);
+  const list = document.getElementById('student-recent-list');
+  if (!recent.length) { list.innerHTML = '<div class="empty-state">No submissions yet.</div>'; return; }
+  list.innerHTML = recent.map(s => `
+    <div class="sub-row">
+      <div><div class="sub-event">${esc(s.event_name)}</div><div class="sub-date">${fmtDate(s.event_date)}</div></div>
+      <div class="sub-right"><div class="sub-hrs">${s.hours}h</div><span class="badge badge-${s.status}">${cap(s.status)}</span></div>
+    </div>`).join('');
+}
+
+async function loadStudentHistory() {
+  const subs = await fetchMySubs();
+  const list = document.getElementById('student-history-list');
+  if (!subs.length) { list.innerHTML = '<div class="empty-state">No submissions yet.</div>'; return; }
+  list.innerHTML = [...subs].reverse().map(s => `
+    <div class="sub-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+        <div><div class="sub-event">${esc(s.event_name)}${s.is_sponsored?'<span style="font-size:11px;background:#e6f1fb;color:#185fa5;padding:2px 7px;border-radius:20px;margin-left:8px;font-weight:500">Sponsored</span>':''}</div><div class="sub-date">${fmtDate(s.event_date)} · ${esc(s.sponsor)}</div></div>
+        <div class="sub-right"><div class="sub-hrs">${s.hours}h</div><span class="badge badge-${s.status}">${cap(s.status)}</span></div>
+      </div>
+      ${s.status==='rejected'&&s.rejection_comment?`<div style="font-size:12px;color:var(--danger);background:var(--danger-bg);padding:6px 10px;border-radius:6px;width:100%">Admin note: ${esc(s.rejection_comment)}</div>`:''}
+    </div>`).join('');
+}
+
+function showStudentTab(tab, el) {
+  document.querySelectorAll('#student-screen .sidebar-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+  ['student-dashboard','student-submit','student-history'].forEach(id => document.getElementById(id).style.display = 'none');
+  if (tab === 'dashboard') { document.getElementById('student-dashboard').style.display = 'block'; loadStudentDashboard(); }
+  if (tab === 'submit')    { document.getElementById('student-submit').style.display    = 'block'; initCanvas(); }
+  if (tab === 'history')   { document.getElementById('student-history').style.display   = 'block'; loadStudentHistory(); }
+}
+
+async function submitHours() {
+  const event_name  = document.getElementById('evt-name').value.trim();
+  const event_date  = document.getElementById('evt-date').value;
+  const hours       = parseFloat(document.getElementById('evt-hours').value);
+  const sponsor     = document.getElementById('evt-sponsor').value.trim();
+  const description = document.getElementById('evt-desc').value.trim();
+  hideErr('submit-error'); hideMsg('submit-success');
+
+  if (!event_name || !event_date || !hours || !sponsor) {
+    showErr('submit-error', 'Please fill in all required fields.'); return;
+  }
+  if (!sigData) {
+    showErr('submit-error', 'A sponsor signature is required before submitting.'); return;
+  }
+
+  setBtnLoading('submit-btn', true, 'Submitting...');
+
+  // Upload signature image to Supabase Storage
+  const sigBlob  = await (await fetch(sigData)).blob();
+  const sigPath  = `signatures/${currentProfile.id}/${Date.now()}.png`;
+  const { error: uploadErr } = await sb.storage.from('signatures').upload(sigPath, sigBlob, { contentType: 'image/png' });
+
+  if (uploadErr) {
+    showErr('submit-error', 'Failed to upload signature. Please try again.');
+    setBtnLoading('submit-btn', false, 'Submit for Approval');
+    return;
+  }
+
+  const is_sponsored = document.getElementById('evt-sponsored').checked;
+  const { error } = await sb.from('submissions').insert({
+    user_id: currentProfile.id,
+    event_name, event_date, hours, sponsor, description,
+    is_sponsored,
+    status: 'pending',
+    signature_path: sigPath
+  });
+
+  if (error) {
+    showErr('submit-error', 'Submission failed. Please try again.');
+    setBtnLoading('submit-btn', false, 'Submit for Approval');
+    return;
+  }
+
+  showMsg('submit-success', 'Submission received! An admin will review it shortly.');
+  ['evt-name','evt-date','evt-hours','evt-sponsor','evt-desc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('evt-sponsored').checked = false;
+  clearSig();
+  setBtnLoading('submit-btn', false, 'Submit for Approval');
+}
+
+// ─────────────────────────────────────────
+//  ADMIN — load all data
+// ─────────────────────────────────────────
+async function loadAdminData() {
+  const [{ data: profiles }, { data: subs }] = await Promise.all([
+    sb.from('profiles').select('*').eq('role', 'student').order('full_name'),
+    sb.from('submissions').select('*').order('created_at', { ascending: false })
+  ]);
+  allProfiles    = profiles || [];
+  allSubmissions = subs    || [];
+  renderStudentTable();
+  updatePendingBadge();
+}
+
+function showAdminTab(tab, el) {
+  document.querySelectorAll('#admin-screen .sidebar-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+  ['admin-students','admin-submissions','admin-pending-accounts'].forEach(id => document.getElementById(id).style.display = 'none');
+  if (tab === 'students')         { document.getElementById('admin-students').style.display          = 'block'; renderStudentTable(); }
+  if (tab === 'submissions')      { document.getElementById('admin-submissions').style.display       = 'block'; renderSubmissionsTable(); }
+  if (tab === 'pending-accounts') { document.getElementById('admin-pending-accounts').style.display  = 'block'; renderPendingAccounts(); }
+}
+
+// ─────────────────────────────────────────
+//  ADMIN — student roster
+// ─────────────────────────────────────────
+function getSponsoredHrs(profileId) {
+  return allSubmissions.filter(s => s.user_id === profileId && s.status === 'approved' && s.is_sponsored)
+                       .reduce((a, s) => a + s.hours, 0);
+}
+
+function getProfileHrs(profileId, status) {
+  return allSubmissions.filter(s => s.user_id === profileId && s.status === status)
+                       .reduce((a, s) => a + s.hours, 0);
+}
+
+function renderStudentTable() {
+  const q     = (document.getElementById('student-search').value || '').toLowerCase();
+  const grade = document.getElementById('grade-filter').value;
+  const list  = allProfiles.filter(p => p.approved).filter(p =>
+    (!q || p.full_name.toLowerCase().includes(q) || p.username.toLowerCase().includes(q)) &&
+    (!grade || p.grade === grade)
+  );
+  const tbody = document.getElementById('student-tbody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No students found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(p => `<tr>
+    <td><div style="font-weight:500;color:var(--navy)">${esc(p.full_name)}</div><div style="font-size:12px;color:var(--text-muted)">@${esc(p.username)}</div></td>
+    <td>${esc(p.grade)}</td>
+    <td><span class="hrs-big">${getProfileHrs(p.id,'approved')}</span></td>
+    <td><span class="hrs-big">${getSponsoredHrs(p.id)}</span></td>
+    <td>${getProfileHrs(p.id,'pending') || '—'}</td>
+    <td><div class="admin-actions">
+      <button class="btn-secondary" style="padding:5px 12px;font-size:12px" onclick="viewStudent('${p.id}')">View</button>
+      <button class="btn-danger"    style="padding:5px 12px;font-size:12px" onclick="confirmRemove('${p.id}')">Remove</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function viewStudent(userId) {
+  studentModalCtx = userId;
+  const p    = allProfiles.find(x => x.id === userId);
+  const subs = allSubmissions.filter(s => s.user_id === userId);
+  const appHrs = subs.filter(s => s.status === 'approved').reduce((a, s) => a + s.hours, 0);
+  document.getElementById('modal-student-name').textContent = p.full_name + ' · ' + p.grade;
+  document.getElementById('student-modal-back').style.display = 'none';
+  document.getElementById('modal-student-foot').innerHTML = `
+    <button class="btn-danger" style="margin-right:auto" onclick="closeModal('student-modal');confirmRemove('${userId}')">Remove Member</button>
+    <button class="btn-secondary" onclick="closeModal('student-modal')">Close</button>`;
+  const sponsoredHrs = subs.filter(s => s.status === 'approved' && s.is_sponsored).reduce((a, s) => a + s.hours, 0);
+  document.getElementById('modal-student-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+      <div class="stat-card"><div class="stat-label">Approved Hours</div><div class="stat-val">${appHrs} <span>hrs</span></div></div>
+      <div class="stat-card"><div class="stat-label">Sponsored Hours</div><div class="stat-val">${sponsoredHrs} <span>hrs</span></div></div>
+      <div class="stat-card"><div class="stat-label">Total Submissions</div><div class="stat-val">${subs.length}</div></div>
+    </div>
+    ${subs.length ? subs.map(s => `
+      <div class="sub-row clickable" onclick="viewSubFromStudent('${s.id}','${userId}')">
+        <div><div class="sub-event">${esc(s.event_name)}${s.is_sponsored?'<span style="font-size:11px;background:#e6f1fb;color:#185fa5;padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:500">Sponsored</span>':''}</div><div class="sub-date">${fmtDate(s.event_date)} · ${s.hours}h</div></div>
+        <div class="sub-right"><span class="badge badge-${s.status}">${cap(s.status)}</span><span class="chevron">&#8250;</span></div>
+      </div>`).join('') : '<div class="empty-state">No submissions yet.</div>'}`;
+  openModal('student-modal');
+}
+
+async function viewSubFromStudent(subId, userId) {
+  const s = allSubmissions.find(x => x.id === subId);
+  document.getElementById('modal-student-name').textContent = s.event_name;
+  document.getElementById('student-modal-back').style.display = 'flex';
+  document.getElementById('modal-student-body').innerHTML = await buildSubDetail(s);
+  document.getElementById('modal-student-foot').innerHTML = s.status === 'pending'
+    ? `<button class="btn-danger" onclick="openRejectModal('${s.id}','student-modal','${userId}')">Reject</button>
+       <button class="btn-gold"   onclick="setStatusFromStudent('${s.id}','approved','${userId}')">Approve</button>`
+    : `<button class="btn-secondary" onclick="backToStudentList()">Back</button>`;
+}
+
+async function setStatusFromStudent(subId, status, userId) {
+  await sb.from('submissions').update({ status }).eq('id', subId);
+  const s = allSubmissions.find(x => x.id === subId);
+  if (s) s.status = status;
+  viewStudent(userId);
+}
+function backToStudentList() { viewStudent(studentModalCtx); }
+
+// ─────────────────────────────────────────
+//  ADMIN — all submissions
+// ─────────────────────────────────────────
+function renderSubmissionsTable() {
+  const q      = (document.getElementById('sub-search').value || '').toLowerCase();
+  const status = document.getElementById('sub-status-filter').value;
+  const list   = allSubmissions.filter(s => {
+    const p = allProfiles.find(x => x.id === s.user_id);
+    return (!q || s.event_name.toLowerCase().includes(q) || (p && p.full_name.toLowerCase().includes(q))) &&
+           (!status || s.status === status);
+  });
+  const tbody = document.getElementById('submissions-tbody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No submissions found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(s => {
+    const p = allProfiles.find(x => x.id === s.user_id);
+    return `<tr>
+      <td>${p ? esc(p.full_name) : '—'}</td>
+      <td>${esc(s.event_name)}</td>
+      <td>${fmtDate(s.event_date)}</td>
+      <td>${s.hours}h</td>
+      <td><span class="badge badge-${s.status}">${cap(s.status)}</span></td>
+      <td><div class="admin-actions">
+        <button class="btn-secondary" style="padding:4px 10px;font-size:12px" onclick="viewSubFromTable('${s.id}')">View</button>
+        ${s.status === 'pending' ? `
+          <button class="btn-gold"   style="padding:4px 10px;font-size:12px" onclick="setStatus('${s.id}','approved')">Approve</button>
+          <button class="btn-danger" style="padding:4px 10px;font-size:12px" onclick="openRejectModal('${s.id}','table')">Reject</button>` : ''}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+async function viewSubFromTable(subId) {
+  const s = allSubmissions.find(x => x.id === subId);
+  document.getElementById('sub-modal-title').textContent = s.event_name;
+  document.getElementById('sub-modal-body').innerHTML  = await buildSubDetail(s);
+  document.getElementById('sub-modal-foot').innerHTML  = s.status === 'pending'
+    ? `<button class="btn-danger" onclick="openRejectModal('${s.id}','sub-modal')">Reject</button>
+       <button class="btn-gold"   onclick="setStatus('${s.id}','approved');closeModal('sub-modal')">Approve</button>`
+    : `<button class="btn-secondary" onclick="closeModal('sub-modal')">Close</button>`;
+  openModal('sub-modal');
+}
+
+async function setStatus(subId, status) {
+  await sb.from('submissions').update({ status }).eq('id', subId);
+  const s = allSubmissions.find(x => x.id === subId);
+  if (s) s.status = status;
+  renderSubmissionsTable();
+}
+
+async function buildSubDetail(s) {
+  const p = allProfiles.find(x => x.id === s.user_id);
+  let sigUrl = null;
+  if (s.signature_path) {
+    const { data } = sb.storage.from('signatures').getPublicUrl(s.signature_path);
+    sigUrl = data?.publicUrl;
+  }
+  return `
+    <div class="detail-row"><span class="detail-label">Student</span><span class="detail-val">${p ? esc(p.full_name) : '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Date</span><span class="detail-val">${fmtDate(s.event_date)}</span></div>
+    <div class="detail-row"><span class="detail-label">Hours</span><span class="detail-val">${s.hours} hrs</span></div>
+    <div class="detail-row"><span class="detail-label">Sponsor</span><span class="detail-val">${esc(s.sponsor)}</span></div>
+    <div class="detail-row"><span class="detail-label">Status</span><span class="detail-val"><span class="badge badge-${s.status}">${cap(s.status)}</span></span></div>
+    <div class="detail-row"><span class="detail-label">Sponsored</span><span class="detail-val">${s.is_sponsored ? 'Yes' : 'No'}</span></div>
+    ${s.description ? `<div class="detail-row"><span class="detail-label">Description</span><span class="detail-val">${esc(s.description)}</span></div>` : ''}
+    ${s.rejection_comment ? `<div class="detail-row"><span class="detail-label">Rejection Note</span><span class="detail-val" style="color:var(--danger)">${esc(s.rejection_comment)}</span></div>` : ''}
+    <div class="sig-preview">
+      <div class="sig-preview-label">Sponsor Signature</div>
+      ${sigUrl
+        ? `<img src="${sigUrl}" style="width:100%;height:100px;object-fit:contain"/>`
+        : `<div style="padding:20px;text-align:center;color:var(--text-light);font-size:13px">No signature on file.</div>`}
+    </div>`;
+}
+
+// ─────────────────────────────────────────
+//  ADMIN — pending accounts
+// ─────────────────────────────────────────
+function renderPendingAccounts() {
+  const pending = allProfiles.filter(p => !p.approved);
+  const list = document.getElementById('pending-accounts-list');
+  if (!pending.length) { list.innerHTML = '<div class="empty-state">No pending account requests.</div>'; return; }
+  list.innerHTML = pending.map(p => `
+    <div class="sub-row">
+      <div><div class="sub-event">${esc(p.full_name)}</div><div class="sub-date">@${esc(p.username)} · ${esc(p.grade)} grade</div></div>
+      <div class="sub-right">
+        <button class="btn-gold"   style="padding:5px 14px" onclick="approveAccount('${p.id}')">Approve</button>
+        <button class="btn-danger" style="padding:5px 14px" onclick="denyAccount('${p.id}')">Deny</button>
+      </div>
+    </div>`).join('');
+}
+
+async function approveAccount(userId) {
+  await sb.from('profiles').update({ approved: true }).eq('id', userId);
+  const p = allProfiles.find(x => x.id === userId);
+  if (p) p.approved = true;
+  renderPendingAccounts();
+  renderStudentTable();
+  updatePendingBadge();
+}
+
+async function denyAccount(userId) {
+  await sb.from('profiles').delete().eq('id', userId);
+  allProfiles = allProfiles.filter(x => x.id !== userId);
+  renderPendingAccounts();
+  updatePendingBadge();
+}
+
+function updatePendingBadge() {
+  const count = allProfiles.filter(p => !p.approved).length;
+  const b = document.getElementById('pending-badge');
+  b.textContent = count || '';
+  b.style.display = count ? 'inline' : 'none';
+}
+
+// ─────────────────────────────────────────
+//  ADMIN — remove member
+// ─────────────────────────────────────────
+function confirmRemove(userId) {
+  const p = allProfiles.find(x => x.id === userId);
+  if (!p) return;
+  const appHrs = getProfileHrs(userId, 'approved');
+  document.getElementById('remove-name').textContent = p.full_name;
+  document.getElementById('remove-meta').textContent = '@' + p.username + ' · ' + p.grade + ' grade · ' + appHrs + ' approved hrs';
+  document.getElementById('remove-modal').dataset.userId = userId;
+  openModal('remove-modal');
+}
+
+async function removeMember() {
+  const userId = document.getElementById('remove-modal').dataset.userId;
+  await sb.from('submissions').delete().eq('user_id', userId);
+  await sb.from('profiles').delete().eq('id', userId);
+  allProfiles    = allProfiles.filter(x => x.id !== userId);
+  allSubmissions = allSubmissions.filter(s => s.user_id !== userId);
+  closeModal('remove-modal');
+  closeModal('student-modal');
+  renderStudentTable();
+  updatePendingBadge();
+}
+
+// ─────────────────────────────────────────
+//  ADMIN — rejection modal
+// ─────────────────────────────────────────
+let rejectContext = { subId: null, source: null, userId: null };
+
+function openRejectModal(subId, source, userId) {
+  rejectContext = { subId, source, userId: userId || null };
+  document.getElementById('rejection-comment').value = '';
+  openModal('reject-modal');
+}
+
+async function confirmReject() {
+  const comment = document.getElementById('rejection-comment').value.trim();
+  const { subId, source, userId } = rejectContext;
+  await sb.from('submissions').update({ status: 'rejected', rejection_comment: comment || null }).eq('id', subId);
+  const s = allSubmissions.find(x => x.id === subId);
+  if (s) { s.status = 'rejected'; s.rejection_comment = comment || null; }
+  closeModal('reject-modal');
+  if (source === 'table') { closeModal('sub-modal'); renderSubmissionsTable(); }
+  if (source === 'sub-modal') { closeModal('sub-modal'); renderSubmissionsTable(); }
+  if (source === 'student-modal') { viewStudent(userId); }
+}
+
+// ─────────────────────────────────────────
+//  ADMIN — export CSV
+// ─────────────────────────────────────────
+function exportCSV() {
+  const students = allProfiles.filter(p => p.approved);
+  let csv = 'Name,Username,Grade,Approved Hours,Pending Hours,Total Submissions\n';
+  students.forEach(p => {
+    const subs   = allSubmissions.filter(s => s.user_id === p.id);
+    const appHrs = subs.filter(s => s.status === 'approved').reduce((a, s) => a + s.hours, 0);
+    const penHrs = subs.filter(s => s.status === 'pending').reduce((a, s) => a + s.hours, 0);
+    csv += `"${p.full_name}","${p.username}","${p.grade}",${appHrs},${penHrs},${subs.length}\n`;
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = 'clubhours_export.csv';
+  a.click();
+}
+
+// ─────────────────────────────────────────
+//  SIGNATURE CANVAS
+// ─────────────────────────────────────────
+function initCanvas() {
+  const c = document.getElementById('sigCanvas'), ctx = c.getContext('2d');
+  c.width  = c.offsetWidth  * devicePixelRatio;
+  c.height = c.offsetHeight * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.strokeStyle = '#1a2744'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const pos = e => { const r = c.getBoundingClientRect(), src = e.touches ? e.touches[0] : e; return { x: src.clientX - r.left, y: src.clientY - r.top }; };
+  c.onmousedown = c.ontouchstart = e => { e.preventDefault(); isDrawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+  c.onmousemove = c.ontouchmove = e => { e.preventDefault(); if (!isDrawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+  c.onmouseup   = c.ontouchend  = () => { isDrawing = false; sigData = c.toDataURL(); };
+}
+function clearSig() {
+  const c = document.getElementById('sigCanvas');
+  c.getContext('2d').clearRect(0, 0, c.width, c.height);
+  sigData = null;
+}
+
+// ─────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showRegister() { document.getElementById('login-form').style.display = 'none'; document.getElementById('register-form').style.display = 'block'; }
+function showLogin()    { document.getElementById('register-form').style.display = 'none'; document.getElementById('login-form').style.display = 'block'; }
+function showErr(id, msg)  { const el = document.getElementById(id); el.textContent = msg; el.style.display = 'block'; }
+function hideErr(id)       { document.getElementById(id).style.display = 'none'; }
+function showMsg(id, msg)  { const el = document.getElementById(id); el.textContent = msg; el.style.display = 'block'; }
+function hideMsg(id)       { document.getElementById(id).style.display = 'none'; }
+function setBtnLoading(id, loading, label) { const el = document.getElementById(id); el.disabled = loading; el.textContent = label; }
+function fmtDate(d) { if (!d) return '—'; const [y,m,day] = d.split('-'), M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return M[+m-1] + ' ' + (+day) + ', ' + y; }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>

@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Beta Hours</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -96,7 +96,7 @@ tr:hover td{background:var(--cream)}
 .approve-count{font-size:11px;background:var(--success-bg);color:var(--success);padding:2px 8px;border-radius:20px;font-weight:500}
 .empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px}
 .loading-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;font-style:italic}
-.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(26,39,68,0.4);z-index:100;align-items:center;justify-content:center}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center}
 .modal-backdrop.open{display:flex}
 .modal{background:var(--white);border-radius:var(--radius-lg);width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md)}
 .modal-head{padding:20px 24px 16px;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center}
@@ -114,86 +114,39 @@ tr:hover td{background:var(--cream)}
 .sig-preview-label{font-size:11px;color:var(--text-muted);padding:6px 12px;background:var(--cream);border-bottom:0.5px solid var(--border)}
 
 @media (max-width: 640px) {
-  /* Login */
   .login-card{width:100%;max-width:100%;min-height:100vh;border-radius:0;padding:40px 24px;display:flex;flex-direction:column;justify-content:center}
   #login-screen{align-items:stretch;justify-content:flex-start}
   .form-grid{grid-template-columns:1fr}
   .form-grid .full{grid-column:1}
-
-  /* Nav */
   nav{padding:0 16px;height:52px}
   .nav-user{display:none}
   .nav-logo{font-size:14px}
-
-  /* Layout — sidebar becomes bottom tab bar */
   .main-layout{flex-direction:column}
-  .sidebar{
-    width:100%;
-    order:2;
-    border-right:none;
-    border-top:0.5px solid var(--border);
-    padding:0;
-    display:flex;
-    flex-direction:row;
-    position:sticky;
-    bottom:0;
-    z-index:10;
-    background:var(--white);
-  }
+  .sidebar{width:100%;order:2;border-right:none;border-top:0.5px solid var(--border);padding:0;display:flex;flex-direction:row;position:sticky;bottom:0;z-index:10;background:var(--white)}
   .sidebar-section{display:none}
-  .sidebar-link{
-    flex:1;
-    text-align:center;
-    padding:10px 4px;
-    font-size:11px;
-    border-left:none;
-    border-top:3px solid transparent;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-  .sidebar-link.active{
-    border-left:none;
-    border-top-color:var(--gold);
-    background:var(--gold-pale);
-  }
+  .sidebar-link{flex:1;text-align:center;padding:10px 4px;font-size:11px;border-left:none;border-top:3px solid transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sidebar-link.active{border-left:none;border-top-color:var(--gold);background:var(--gold-pale)}
   .approve-count{display:none}
-
-  /* Content */
   .content{padding:20px 16px;max-width:100%}
   .page-title{font-size:18px}
-
-  /* Stats */
   .stats-row{grid-template-columns:1fr 1fr !important;gap:10px}
   .stat-val{font-size:22px}
-
-  /* Cards */
   .card-body{padding:14px}
-
-  /* Tables — convert to card-style rows */
   .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
   table{font-size:12px;min-width:480px}
   th{padding:8px 10px;font-size:10px}
   td{padding:10px 10px}
   .admin-actions{flex-wrap:wrap;gap:6px}
   .admin-actions button{font-size:11px !important;padding:4px 8px !important}
-
-  /* Modals */
   .modal{width:100% !important;max-width:100%;max-height:85vh;border-radius:var(--radius-lg) var(--radius-lg) 0 0;position:fixed;bottom:0;left:0;right:0}
   .modal-backdrop.open{align-items:flex-end}
   .modal-body{padding:16px 20px}
   .modal-head{padding:16px 20px 12px}
   .modal-foot{padding:12px 20px;flex-wrap:wrap}
   .modal-foot button{flex:1;min-width:100px;text-align:center}
-
-  /* Sub rows */
   .sub-hrs{font-size:15px;margin-right:8px}
   .sub-event{font-size:13px}
-
-  /* Sig canvas */
   canvas#sigCanvas{height:120px}
-
-  /* Filter row */
   .filter-row{flex-direction:column;align-items:stretch}
   .filter-row input,.filter-row select{width:100%;min-width:unset}
 }
@@ -315,7 +268,7 @@ tr:hover td{background:var(--cream)}
         </div>
         <div class="card"><div class="table-wrap"><table>
           <thead><tr><th>Student</th><th>Grade</th><th>Approved Hrs</th><th>Sponsored Hrs</th><th>Pending Hrs</th><th></th></tr></thead>
-          <tbody id="student-tbody"><tr><td colspan="5"><div class="loading-state">Loading...</div></td></tr></tbody>
+          <tbody id="student-tbody"><tr><td colspan="6"><div class="loading-state">Loading...</div></td></tr></tbody>
         </table></div></div>
       </div>
       <div id="admin-submissions" style="display:none">
@@ -409,13 +362,24 @@ tr:hover td{background:var(--cream)}
 
 <script>
 // ─────────────────────────────────────────
-//  CONFIGURATION
-//  Fill these in from Supabase > Settings > API
+//  CONFIGURATION — paste your Apps Script
+//  Web App URL here after deploying
 // ─────────────────────────────────────────
-const SUPABASE_URL = 'https://lllaerixuqscymuavshl.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_mdRpBjDc1SYLQE4EB4BrDQ_929eMs2I';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxuDQliT4S2J0_xc4B6zm7W4iA4DVp8Vrx_-eexYYg_Gdj1y-8AlyYUbHY3Gvewp_eXfg/exec';
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ─────────────────────────────────────────
+//  API LAYER — replaces all Supabase calls
+// ─────────────────────────────────────────
+async function api(action, payload) {
+  const token = localStorage.getItem('bh_token');
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action, payload: payload || {}, token }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
 
 // ─────────────────────────────────────────
 //  STATE
@@ -428,42 +392,21 @@ let sigData         = null;
 let isDrawing       = false;
 
 // ─────────────────────────────────────────
-//  BOOT
+//  BOOT — restore session from localStorage
 // ─────────────────────────────────────────
-let appReady = false;
-
 window.addEventListener('DOMContentLoaded', async () => {
-  // Use getSession on load only — don't use onAuthStateChange for initial boot
-  // to avoid double-firing and lock conflicts
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    await bootUser(session.user);
+  const token   = localStorage.getItem('bh_token');
+  const profile = localStorage.getItem('bh_profile');
+  if (token && profile) {
+    currentProfile = JSON.parse(profile);
+    if (currentProfile.role === 'admin') {
+      showScreen('admin-screen');
+      await loadAdminData();
+    } else {
+      showStudentScreen();
+    }
   }
-  appReady = true;
 });
-
-async function bootUser(user) {
-  const { data: rows } = await sb.from('profiles').select('*').eq('id', user.id).limit(1);
-  const profile = rows && rows.length > 0 ? rows[0] : null;
-  if (!profile) {
-    await sb.auth.signOut();
-    showScreen('login-screen');
-    return;
-  }
-  if (!profile.approved) {
-    await sb.auth.signOut();
-    showErr('login-error', 'Your account is pending admin approval.');
-    showScreen('login-screen');
-    return;
-  }
-  currentProfile = profile;
-  if (profile.role === 'admin') {
-    showScreen('admin-screen');
-    await loadAdminData();
-  } else {
-    showStudentScreen();
-  }
-}
 
 // ─────────────────────────────────────────
 //  AUTH
@@ -480,26 +423,20 @@ async function doLogin() {
   const password = document.getElementById('login-pass').value;
   hideErr('login-error');
   setBtnLoading('login-btn', true, 'Signing in...');
-
-  // Look up email by username
-  const { data: rows } = await sb.from('profiles').select('email').eq('username', username).limit(1);
-  const found = rows && rows.length > 0 ? rows[0] : null;
-  if (!found) {
-    showErr('login-error', 'Invalid username or password.');
-    setBtnLoading('login-btn', false, 'Sign In');
-    return;
+  try {
+    const result = await api('login', { username, password });
+    localStorage.setItem('bh_token', result.token);
+    localStorage.setItem('bh_profile', JSON.stringify(result.profile));
+    currentProfile = result.profile;
+    if (result.profile.role === 'admin') {
+      showScreen('admin-screen');
+      await loadAdminData();
+    } else {
+      showStudentScreen();
+    }
+  } catch (err) {
+    showErr('login-error', err.message);
   }
-
-  // Sign in with Supabase auth
-  const { data, error } = await sb.auth.signInWithPassword({ email: found.email, password });
-  if (error) {
-    showErr('login-error', 'Invalid username or password.');
-    setBtnLoading('login-btn', false, 'Sign In');
-    return;
-  }
-
-  // Manually boot — don't rely on onAuthStateChange
-  await bootUser(data.user);
   setBtnLoading('login-btn', false, 'Sign In');
 }
 
@@ -510,60 +447,25 @@ async function doRegister() {
   const password = document.getElementById('reg-pass').value;
   const grade    = document.getElementById('reg-grade').value;
   hideErr('reg-error'); hideMsg('reg-success');
-
-  if (!first || !last || !username || !password || !grade) {
-    showErr('reg-error', 'Please fill in all fields.'); return;
-  }
-  if (password.length < 8) {
-    showErr('reg-error', 'Password must be at least 8 characters.'); return;
-  }
-
+  if (!first || !last || !username || !password || !grade) { showErr('reg-error', 'Please fill in all fields.'); return; }
+  if (password.length < 8) { showErr('reg-error', 'Password must be at least 8 characters.'); return; }
   setBtnLoading('reg-btn', true, 'Submitting...');
-
-  // Check username availability
-  const { data: existing } = await sb.from('profiles').select('id').eq('username', username).limit(1);
-  if (existing && existing.length > 0) {
-    showErr('reg-error', 'That username is already taken.');
-    setBtnLoading('reg-btn', false, 'Submit Request');
-    return;
+  try {
+    await api('register', { first, last, username, password, grade });
+    showMsg('reg-success', 'Request submitted! An admin will review your account shortly.');
+    ['reg-first','reg-last','reg-user','reg-pass'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('reg-grade').value = '';
+  } catch (err) {
+    showErr('reg-error', err.message);
   }
-
-  const email = `${username}@clubhours.internal`;
-  const { data, error } = await sb.auth.signUp({ email, password });
-
-  if (error) {
-    showErr('reg-error', error.message);
-    setBtnLoading('reg-btn', false, 'Submit Request');
-    return;
-  }
-
-  await sb.from('profiles').insert({
-    id:        data.user.id,
-    email,
-    username,
-    full_name: `${first} ${last}`,
-    grade,
-    role:      'student',
-    approved:  false
-  });
-
-  // Sign out immediately — admin must approve first
-  await sb.auth.signOut();
-
-  showMsg('reg-success', 'Request submitted! An admin will review your account shortly.');
-  ['reg-first','reg-last','reg-user','reg-pass'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('reg-grade').value = '';
   setBtnLoading('reg-btn', false, 'Submit Request');
 }
 
 async function doLogout() {
-  currentProfile = null;
-  allProfiles = [];
-  allSubmissions = [];
-  await sb.auth.signOut();
-  Object.keys(localStorage).forEach(key => {
-    if (key.startsWith('sb-')) localStorage.removeItem(key);
-  });
+  try { await api('logout'); } catch (_) {}
+  localStorage.removeItem('bh_token');
+  localStorage.removeItem('bh_profile');
+  currentProfile = null; allProfiles = []; allSubmissions = [];
   showScreen('login-screen');
   setBtnLoading('login-btn', false, 'Sign In');
   document.getElementById('login-user').value = '';
@@ -582,41 +484,44 @@ function showStudentScreen() {
 }
 
 async function fetchMySubs() {
-  const { data } = await sb.from('submissions').select('*')
-    .eq('user_id', currentProfile.id).order('created_at');
-  return data || [];
+  const subs = await api('getMySubmissions');
+  return subs || [];
 }
 
 async function loadStudentDashboard() {
-  const subs = await fetchMySubs();
-  const approved = subs.filter(s => s.status === 'approved').reduce((a, s) => a + s.hours, 0);
-  const pending  = subs.filter(s => s.status === 'pending').reduce((a, s) => a + s.hours, 0);
-  const sponsored = subs.filter(s => s.status === 'approved' && s.is_sponsored).reduce((a, s) => a + s.hours, 0);
-  document.getElementById('s-approved-hrs').innerHTML  = approved  + ' <span>hrs</span>';
-  document.getElementById('s-sponsored-hrs').innerHTML = sponsored + ' <span>hrs</span>';
-  document.getElementById('s-pending-hrs').innerHTML   = pending   + ' <span>hrs</span>';
-  const recent = [...subs].reverse().slice(0, 3);
-  const list = document.getElementById('student-recent-list');
-  if (!recent.length) { list.innerHTML = '<div class="empty-state">No submissions yet.</div>'; return; }
-  list.innerHTML = recent.map(s => `
-    <div class="sub-row">
-      <div><div class="sub-event">${esc(s.event_name)}</div><div class="sub-date">${fmtDate(s.event_date)}</div></div>
-      <div class="sub-right"><div class="sub-hrs">${s.hours}h</div><span class="badge badge-${s.status}">${cap(s.status)}</span></div>
-    </div>`).join('');
+  try {
+    const subs = await fetchMySubs();
+    const approved  = subs.filter(s => s.status === 'approved').reduce((a, s) => a + s.hours, 0);
+    const sponsored = subs.filter(s => s.status === 'approved' && s.is_sponsored).reduce((a, s) => a + s.hours, 0);
+    const pending   = subs.filter(s => s.status === 'pending').reduce((a, s) => a + s.hours, 0);
+    document.getElementById('s-approved-hrs').innerHTML  = approved  + ' <span>hrs</span>';
+    document.getElementById('s-sponsored-hrs').innerHTML = sponsored + ' <span>hrs</span>';
+    document.getElementById('s-pending-hrs').innerHTML   = pending   + ' <span>hrs</span>';
+    const recent = [...subs].reverse().slice(0, 3);
+    const list = document.getElementById('student-recent-list');
+    if (!recent.length) { list.innerHTML = '<div class="empty-state">No submissions yet.</div>'; return; }
+    list.innerHTML = recent.map(s => `
+      <div class="sub-row">
+        <div><div class="sub-event">${esc(s.event_name)}</div><div class="sub-date">${fmtDate(s.event_date)}</div></div>
+        <div class="sub-right"><div class="sub-hrs">${s.hours}h</div><span class="badge badge-${s.status}">${cap(s.status)}</span></div>
+      </div>`).join('');
+  } catch (err) { showErr('login-error', err.message); }
 }
 
 async function loadStudentHistory() {
-  const subs = await fetchMySubs();
-  const list = document.getElementById('student-history-list');
-  if (!subs.length) { list.innerHTML = '<div class="empty-state">No submissions yet.</div>'; return; }
-  list.innerHTML = [...subs].reverse().map(s => `
-    <div class="sub-row" style="flex-direction:column;align-items:flex-start;gap:4px">
-      <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
-        <div><div class="sub-event">${esc(s.event_name)}${s.is_sponsored?'<span style="font-size:11px;background:#e6f1fb;color:#185fa5;padding:2px 7px;border-radius:20px;margin-left:8px;font-weight:500">Sponsored</span>':''}</div><div class="sub-date">${fmtDate(s.event_date)} · ${esc(s.sponsor)}</div></div>
-        <div class="sub-right"><div class="sub-hrs">${s.hours}h</div><span class="badge badge-${s.status}">${cap(s.status)}</span></div>
-      </div>
-      ${s.status==='rejected'&&s.rejection_comment?`<div style="font-size:12px;color:var(--danger);background:var(--danger-bg);padding:6px 10px;border-radius:6px;width:100%">Admin note: ${esc(s.rejection_comment)}</div>`:''}
-    </div>`).join('');
+  try {
+    const subs = await fetchMySubs();
+    const list = document.getElementById('student-history-list');
+    if (!subs.length) { list.innerHTML = '<div class="empty-state">No submissions yet.</div>'; return; }
+    list.innerHTML = [...subs].reverse().map(s => `
+      <div class="sub-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+          <div><div class="sub-event">${esc(s.event_name)}${s.is_sponsored?'<span style="font-size:11px;background:#e6f1fb;color:#185fa5;padding:2px 7px;border-radius:20px;margin-left:8px;font-weight:500">Sponsored</span>':''}</div><div class="sub-date">${fmtDate(s.event_date)} · ${esc(s.sponsor)}</div></div>
+          <div class="sub-right"><div class="sub-hrs">${s.hours}h</div><span class="badge badge-${s.status}">${cap(s.status)}</span></div>
+        </div>
+        ${s.status==='rejected'&&s.rejection_comment?`<div style="font-size:12px;color:var(--danger);background:var(--danger-bg);padding:6px 10px;border-radius:6px;width:100%">Admin note: ${esc(s.rejection_comment)}</div>`:''}
+      </div>`).join('');
+  } catch (err) { console.error(err); }
 }
 
 function showStudentTab(tab, el) {
@@ -629,52 +534,25 @@ function showStudentTab(tab, el) {
 }
 
 async function submitHours() {
-  const event_name  = document.getElementById('evt-name').value.trim();
-  const event_date  = document.getElementById('evt-date').value;
-  const hours       = parseFloat(document.getElementById('evt-hours').value);
-  const sponsor     = document.getElementById('evt-sponsor').value.trim();
-  const description = document.getElementById('evt-desc').value.trim();
+  const event_name    = document.getElementById('evt-name').value.trim();
+  const event_date    = document.getElementById('evt-date').value;
+  const hours         = parseFloat(document.getElementById('evt-hours').value);
+  const sponsor       = document.getElementById('evt-sponsor').value.trim();
+  const description   = document.getElementById('evt-desc').value.trim();
+  const is_sponsored  = document.getElementById('evt-sponsored').checked;
   hideErr('submit-error'); hideMsg('submit-success');
-
-  if (!event_name || !event_date || !hours || !sponsor) {
-    showErr('submit-error', 'Please fill in all required fields.'); return;
-  }
-  if (!sigData) {
-    showErr('submit-error', 'A sponsor signature is required before submitting.'); return;
-  }
-
+  if (!event_name || !event_date || !hours || !sponsor) { showErr('submit-error', 'Please fill in all required fields.'); return; }
+  if (!sigData) { showErr('submit-error', 'A sponsor signature is required before submitting.'); return; }
   setBtnLoading('submit-btn', true, 'Submitting...');
-
-  // Upload signature image to Supabase Storage
-  const sigBlob  = await (await fetch(sigData)).blob();
-  const sigPath  = `signatures/${currentProfile.id}/${Date.now()}.png`;
-  const { error: uploadErr } = await sb.storage.from('signatures').upload(sigPath, sigBlob, { contentType: 'image/png' });
-
-  if (uploadErr) {
-    showErr('submit-error', 'Failed to upload signature. Please try again.');
-    setBtnLoading('submit-btn', false, 'Submit for Approval');
-    return;
+  try {
+    await api('submitHours', { event_name, event_date, hours, sponsor, description, is_sponsored, signature_base64: sigData });
+    showMsg('submit-success', 'Submission received! An admin will review it shortly.');
+    ['evt-name','evt-date','evt-hours','evt-sponsor','evt-desc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('evt-sponsored').checked = false;
+    clearSig();
+  } catch (err) {
+    showErr('submit-error', 'Submission failed: ' + err.message);
   }
-
-  const is_sponsored = document.getElementById('evt-sponsored').checked;
-  const { error } = await sb.from('submissions').insert({
-    user_id: currentProfile.id,
-    event_name, event_date, hours, sponsor, description,
-    is_sponsored,
-    status: 'pending',
-    signature_path: sigPath
-  });
-
-  if (error) {
-    showErr('submit-error', 'Submission failed. Please try again.');
-    setBtnLoading('submit-btn', false, 'Submit for Approval');
-    return;
-  }
-
-  showMsg('submit-success', 'Submission received! An admin will review it shortly.');
-  ['evt-name','evt-date','evt-hours','evt-sponsor','evt-desc'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('evt-sponsored').checked = false;
-  clearSig();
   setBtnLoading('submit-btn', false, 'Submit for Approval');
 }
 
@@ -682,36 +560,32 @@ async function submitHours() {
 //  ADMIN — load all data
 // ─────────────────────────────────────────
 async function loadAdminData() {
-  const [{ data: profiles }, { data: subs }] = await Promise.all([
-    sb.from('profiles').select('*').eq('role', 'student').order('full_name'),
-    sb.from('submissions').select('*').order('created_at', { ascending: false })
-  ]);
-  allProfiles    = profiles || [];
-  allSubmissions = subs    || [];
-  renderStudentTable();
-  updatePendingBadge();
+  try {
+    const [profiles, subs] = await Promise.all([api('getAllProfiles'), api('getAllSubmissions')]);
+    allProfiles    = profiles || [];
+    allSubmissions = subs    || [];
+    renderStudentTable();
+    updatePendingBadge();
+  } catch (err) { console.error('loadAdminData:', err); }
 }
 
 function showAdminTab(tab, el) {
   document.querySelectorAll('#admin-screen .sidebar-link').forEach(l => l.classList.remove('active'));
   el.classList.add('active');
   ['admin-students','admin-submissions','admin-pending-accounts'].forEach(id => document.getElementById(id).style.display = 'none');
-  if (tab === 'students')         { document.getElementById('admin-students').style.display          = 'block'; renderStudentTable(); }
-  if (tab === 'submissions')      { document.getElementById('admin-submissions').style.display       = 'block'; renderSubmissionsTable(); }
-  if (tab === 'pending-accounts') { document.getElementById('admin-pending-accounts').style.display  = 'block'; renderPendingAccounts(); }
+  if (tab === 'students')         { document.getElementById('admin-students').style.display         = 'block'; renderStudentTable(); }
+  if (tab === 'submissions')      { document.getElementById('admin-submissions').style.display      = 'block'; renderSubmissionsTable(); }
+  if (tab === 'pending-accounts') { document.getElementById('admin-pending-accounts').style.display = 'block'; renderPendingAccounts(); }
 }
 
 // ─────────────────────────────────────────
 //  ADMIN — student roster
 // ─────────────────────────────────────────
 function getSponsoredHrs(profileId) {
-  return allSubmissions.filter(s => s.user_id === profileId && s.status === 'approved' && s.is_sponsored)
-                       .reduce((a, s) => a + s.hours, 0);
+  return allSubmissions.filter(s => s.user_id === profileId && s.status === 'approved' && s.is_sponsored).reduce((a, s) => a + s.hours, 0);
 }
-
 function getProfileHrs(profileId, status) {
-  return allSubmissions.filter(s => s.user_id === profileId && s.status === status)
-                       .reduce((a, s) => a + s.hours, 0);
+  return allSubmissions.filter(s => s.user_id === profileId && s.status === status).reduce((a, s) => a + s.hours, 0);
 }
 
 function renderStudentTable() {
@@ -722,10 +596,7 @@ function renderStudentTable() {
     (!grade || p.grade === grade)
   );
   const tbody = document.getElementById('student-tbody');
-  if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No students found.</td></tr>';
-    return;
-  }
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No students found.</td></tr>'; return; }
   tbody.innerHTML = list.map(p => `<tr>
     <td><div style="font-weight:500;color:var(--navy)">${esc(p.full_name)}</div><div style="font-size:12px;color:var(--text-muted)">@${esc(p.username)}</div></td>
     <td>${esc(p.grade)}</td>
@@ -743,13 +614,13 @@ function viewStudent(userId) {
   studentModalCtx = userId;
   const p    = allProfiles.find(x => x.id === userId);
   const subs = allSubmissions.filter(s => s.user_id === userId);
-  const appHrs = subs.filter(s => s.status === 'approved').reduce((a, s) => a + s.hours, 0);
+  const appHrs      = subs.filter(s => s.status === 'approved').reduce((a, s) => a + s.hours, 0);
+  const sponsoredHrs = subs.filter(s => s.status === 'approved' && s.is_sponsored).reduce((a, s) => a + s.hours, 0);
   document.getElementById('modal-student-name').textContent = p.full_name + ' · ' + p.grade;
   document.getElementById('student-modal-back').style.display = 'none';
   document.getElementById('modal-student-foot').innerHTML = `
     <button class="btn-danger" style="margin-right:auto" onclick="closeModal('student-modal');confirmRemove('${userId}')">Remove Member</button>
     <button class="btn-secondary" onclick="closeModal('student-modal')">Close</button>`;
-  const sponsoredHrs = subs.filter(s => s.status === 'approved' && s.is_sponsored).reduce((a, s) => a + s.hours, 0);
   document.getElementById('modal-student-body').innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
       <div class="stat-card"><div class="stat-label">Approved Hours</div><div class="stat-val">${appHrs} <span>hrs</span></div></div>
@@ -764,11 +635,11 @@ function viewStudent(userId) {
   openModal('student-modal');
 }
 
-async function viewSubFromStudent(subId, userId) {
+function viewSubFromStudent(subId, userId) {
   const s = allSubmissions.find(x => x.id === subId);
   document.getElementById('modal-student-name').textContent = s.event_name;
   document.getElementById('student-modal-back').style.display = 'flex';
-  document.getElementById('modal-student-body').innerHTML = await buildSubDetail(s);
+  document.getElementById('modal-student-body').innerHTML = buildSubDetail(s);
   document.getElementById('modal-student-foot').innerHTML = s.status === 'pending'
     ? `<button class="btn-danger" onclick="openRejectModal('${s.id}','student-modal','${userId}')">Reject</button>
        <button class="btn-gold"   onclick="setStatusFromStudent('${s.id}','approved','${userId}')">Approve</button>`
@@ -776,10 +647,12 @@ async function viewSubFromStudent(subId, userId) {
 }
 
 async function setStatusFromStudent(subId, status, userId) {
-  await sb.from('submissions').update({ status }).eq('id', subId);
-  const s = allSubmissions.find(x => x.id === subId);
-  if (s) s.status = status;
-  viewStudent(userId);
+  try {
+    await api('setSubmissionStatus', { subId, status });
+    const s = allSubmissions.find(x => x.id === subId);
+    if (s) s.status = status;
+    viewStudent(userId);
+  } catch (err) { alert(err.message); }
 }
 function backToStudentList() { viewStudent(studentModalCtx); }
 
@@ -795,10 +668,7 @@ function renderSubmissionsTable() {
            (!status || s.status === status);
   });
   const tbody = document.getElementById('submissions-tbody');
-  if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No submissions found.</td></tr>';
-    return;
-  }
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No submissions found.</td></tr>'; return; }
   tbody.innerHTML = list.map(s => {
     const p = allProfiles.find(x => x.id === s.user_id);
     return `<tr>
@@ -817,10 +687,10 @@ function renderSubmissionsTable() {
   }).join('');
 }
 
-async function viewSubFromTable(subId) {
+function viewSubFromTable(subId) {
   const s = allSubmissions.find(x => x.id === subId);
   document.getElementById('sub-modal-title').textContent = s.event_name;
-  document.getElementById('sub-modal-body').innerHTML  = await buildSubDetail(s);
+  document.getElementById('sub-modal-body').innerHTML  = buildSubDetail(s);
   document.getElementById('sub-modal-foot').innerHTML  = s.status === 'pending'
     ? `<button class="btn-danger" onclick="openRejectModal('${s.id}','sub-modal')">Reject</button>
        <button class="btn-gold"   onclick="setStatus('${s.id}','approved');closeModal('sub-modal')">Approve</button>`
@@ -829,19 +699,16 @@ async function viewSubFromTable(subId) {
 }
 
 async function setStatus(subId, status) {
-  await sb.from('submissions').update({ status }).eq('id', subId);
-  const s = allSubmissions.find(x => x.id === subId);
-  if (s) s.status = status;
-  renderSubmissionsTable();
+  try {
+    await api('setSubmissionStatus', { subId, status });
+    const s = allSubmissions.find(x => x.id === subId);
+    if (s) s.status = status;
+    renderSubmissionsTable();
+  } catch (err) { alert(err.message); }
 }
 
-async function buildSubDetail(s) {
+function buildSubDetail(s) {
   const p = allProfiles.find(x => x.id === s.user_id);
-  let sigUrl = null;
-  if (s.signature_path) {
-    const { data } = sb.storage.from('signatures').getPublicUrl(s.signature_path);
-    sigUrl = data?.publicUrl;
-  }
   return `
     <div class="detail-row"><span class="detail-label">Student</span><span class="detail-val">${p ? esc(p.full_name) : '—'}</span></div>
     <div class="detail-row"><span class="detail-label">Date</span><span class="detail-val">${fmtDate(s.event_date)}</span></div>
@@ -853,8 +720,8 @@ async function buildSubDetail(s) {
     ${s.rejection_comment ? `<div class="detail-row"><span class="detail-label">Rejection Note</span><span class="detail-val" style="color:var(--danger)">${esc(s.rejection_comment)}</span></div>` : ''}
     <div class="sig-preview">
       <div class="sig-preview-label">Sponsor Signature</div>
-      ${sigUrl
-        ? `<img src="${sigUrl}" style="width:100%;height:100px;object-fit:contain"/>`
+      ${s.signature_url
+        ? `<img src="${s.signature_url}" style="width:100%;height:100px;object-fit:contain"/>`
         : `<div style="padding:20px;text-align:center;color:var(--text-light);font-size:13px">No signature on file.</div>`}
     </div>`;
 }
@@ -877,19 +744,20 @@ function renderPendingAccounts() {
 }
 
 async function approveAccount(userId) {
-  await sb.from('profiles').update({ approved: true }).eq('id', userId);
-  const p = allProfiles.find(x => x.id === userId);
-  if (p) p.approved = true;
-  renderPendingAccounts();
-  renderStudentTable();
-  updatePendingBadge();
+  try {
+    await api('approveAccount', { userId });
+    const p = allProfiles.find(x => x.id === userId);
+    if (p) p.approved = true;
+    renderPendingAccounts(); renderStudentTable(); updatePendingBadge();
+  } catch (err) { alert(err.message); }
 }
 
 async function denyAccount(userId) {
-  await sb.from('profiles').delete().eq('id', userId);
-  allProfiles = allProfiles.filter(x => x.id !== userId);
-  renderPendingAccounts();
-  updatePendingBadge();
+  try {
+    await api('denyAccount', { userId });
+    allProfiles = allProfiles.filter(x => x.id !== userId);
+    renderPendingAccounts(); updatePendingBadge();
+  } catch (err) { alert(err.message); }
 }
 
 function updatePendingBadge() {
@@ -914,14 +782,13 @@ function confirmRemove(userId) {
 
 async function removeMember() {
   const userId = document.getElementById('remove-modal').dataset.userId;
-  await sb.from('submissions').delete().eq('user_id', userId);
-  await sb.from('profiles').delete().eq('id', userId);
-  allProfiles    = allProfiles.filter(x => x.id !== userId);
-  allSubmissions = allSubmissions.filter(s => s.user_id !== userId);
-  closeModal('remove-modal');
-  closeModal('student-modal');
-  renderStudentTable();
-  updatePendingBadge();
+  try {
+    await api('removeMember', { userId });
+    allProfiles    = allProfiles.filter(x => x.id !== userId);
+    allSubmissions = allSubmissions.filter(s => s.user_id !== userId);
+    closeModal('remove-modal'); closeModal('student-modal');
+    renderStudentTable(); updatePendingBadge();
+  } catch (err) { alert(err.message); }
 }
 
 // ─────────────────────────────────────────
@@ -938,13 +805,14 @@ function openRejectModal(subId, source, userId) {
 async function confirmReject() {
   const comment = document.getElementById('rejection-comment').value.trim();
   const { subId, source, userId } = rejectContext;
-  await sb.from('submissions').update({ status: 'rejected', rejection_comment: comment || null }).eq('id', subId);
-  const s = allSubmissions.find(x => x.id === subId);
-  if (s) { s.status = 'rejected'; s.rejection_comment = comment || null; }
-  closeModal('reject-modal');
-  if (source === 'table') { closeModal('sub-modal'); renderSubmissionsTable(); }
-  if (source === 'sub-modal') { closeModal('sub-modal'); renderSubmissionsTable(); }
-  if (source === 'student-modal') { viewStudent(userId); }
+  try {
+    await api('setSubmissionStatus', { subId, status: 'rejected', rejection_comment: comment });
+    const s = allSubmissions.find(x => x.id === subId);
+    if (s) { s.status = 'rejected'; s.rejection_comment = comment || ''; }
+    closeModal('reject-modal');
+    if (source === 'table' || source === 'sub-modal') { closeModal('sub-modal'); renderSubmissionsTable(); }
+    if (source === 'student-modal') viewStudent(userId);
+  } catch (err) { alert(err.message); }
 }
 
 // ─────────────────────────────────────────
@@ -952,16 +820,17 @@ async function confirmReject() {
 // ─────────────────────────────────────────
 function exportCSV() {
   const students = allProfiles.filter(p => p.approved);
-  let csv = 'Name,Username,Grade,Approved Hours,Pending Hours,Total Submissions\n';
+  let csv = 'Name,Username,Grade,Approved Hours,Sponsored Hours,Pending Hours,Total Submissions\n';
   students.forEach(p => {
-    const subs   = allSubmissions.filter(s => s.user_id === p.id);
-    const appHrs = subs.filter(s => s.status === 'approved').reduce((a, s) => a + s.hours, 0);
-    const penHrs = subs.filter(s => s.status === 'pending').reduce((a, s) => a + s.hours, 0);
-    csv += `"${p.full_name}","${p.username}","${p.grade}",${appHrs},${penHrs},${subs.length}\n`;
+    const subs    = allSubmissions.filter(s => s.user_id === p.id);
+    const appHrs  = subs.filter(s => s.status === 'approved').reduce((a, s) => a + s.hours, 0);
+    const sponHrs = subs.filter(s => s.status === 'approved' && s.is_sponsored).reduce((a, s) => a + s.hours, 0);
+    const penHrs  = subs.filter(s => s.status === 'pending').reduce((a, s) => a + s.hours, 0);
+    csv += `"${p.full_name}","${p.username}","${p.grade}",${appHrs},${sponHrs},${penHrs},${subs.length}\n`;
   });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-  a.download = 'clubhours_export.csv';
+  a.download = 'betahours_export.csv';
   a.click();
 }
 
@@ -973,7 +842,7 @@ function initCanvas() {
   c.width  = c.offsetWidth  * devicePixelRatio;
   c.height = c.offsetHeight * devicePixelRatio;
   ctx.scale(devicePixelRatio, devicePixelRatio);
-  ctx.strokeStyle = '#1a2744'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#111111'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   const pos = e => { const r = c.getBoundingClientRect(), src = e.touches ? e.touches[0] : e; return { x: src.clientX - r.left, y: src.clientY - r.top }; };
   c.onmousedown = c.ontouchstart = e => { e.preventDefault(); isDrawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
   c.onmousemove = c.ontouchmove = e => { e.preventDefault(); if (!isDrawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
@@ -998,7 +867,7 @@ function hideErr(id)       { document.getElementById(id).style.display = 'none';
 function showMsg(id, msg)  { const el = document.getElementById(id); el.textContent = msg; el.style.display = 'block'; }
 function hideMsg(id)       { document.getElementById(id).style.display = 'none'; }
 function setBtnLoading(id, loading, label) { const el = document.getElementById(id); el.disabled = loading; el.textContent = label; }
-function fmtDate(d) { if (!d) return '—'; const [y,m,day] = d.split('-'), M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return M[+m-1] + ' ' + (+day) + ', ' + y; }
+function fmtDate(d) { if (!d) return '—'; const [y,m,day] = String(d).split('-'), M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return M[+m-1] + ' ' + (+day) + ', ' + y; }
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>

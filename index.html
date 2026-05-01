@@ -364,7 +364,7 @@ tr:hover td{background:var(--cream)}
 //  CONFIGURATION — paste your Apps Script
 //  Web App URL here after deploying
 // ─────────────────────────────────────────
-const API_URL = 'https://script.google.com/macros/s/AKfycbxuDQliT4S2J0_xc4B6zm7W4iA4DVp8Vrx_-eexYYg_Gdj1y-8AlyYUbHY3Gvewp_eXfg/exec'
+const API_URL = 'https://script.google.com/macros/s/AKfycbxuDQliT4S2J0_xc4B6zm7W4iA4DVp8Vrx_-eexYYg_Gdj1y-8AlyYUbHY3Gvewp_eXfg/exec';
 
 // ─────────────────────────────────────────
 //  API LAYER — replaces all Supabase calls
@@ -565,7 +565,9 @@ async function submitHours() {
   if (!sigData) { showErr('submit-error', 'A sponsor signature is required before submitting.'); return; }
   setBtnLoading('submit-btn', true, 'Submitting...');
   try {
-    await api('submitHours', { event_name, event_date, hours, sponsor, description, is_sponsored, signature_base64: sigData });
+    // Compress signature to reduce size before sending
+    const compressedSig = await compressSig(sigData);
+    await api('submitHours', { event_name, event_date, hours, sponsor, description, is_sponsored, signature_base64: compressedSig });
     showMsg('submit-success', 'Submission received! An admin will review it shortly.');
     ['evt-name','evt-date','evt-hours','evt-sponsor','evt-desc'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('evt-sponsored').checked = false;
@@ -741,7 +743,7 @@ function buildSubDetail(s) {
     <div class="sig-preview">
       <div class="sig-preview-label">Sponsor Signature</div>
       ${s.signature_url
-        ? `<img src="${s.signature_url}" style="width:100%;height:100px;object-fit:contain"/>`
+        ? `<img src="${s.signature_url}" style="width:100%;height:100px;object-fit:contain;background:#fff"/>`
         : `<div style="padding:20px;text-align:center;color:var(--text-light);font-size:13px">No signature on file.</div>`}
     </div>`;
 }
@@ -857,6 +859,24 @@ function exportCSV() {
 // ─────────────────────────────────────────
 //  SIGNATURE CANVAS
 // ─────────────────────────────────────────
+function compressSig(dataUrl) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      // Scale down to reduce size
+      canvas.width = 400;
+      canvas.height = 120;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.5));
+    };
+    img.src = dataUrl;
+  });
+}
+
 function initCanvas() {
   const c = document.getElementById('sigCanvas'), ctx = c.getContext('2d');
   c.width  = c.offsetWidth  * devicePixelRatio;

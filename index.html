@@ -503,7 +503,10 @@ async function showStudentScreen() {
 
 async function loadStudentData() {
   try {
-    [myMemberships,mySubmissions]=await Promise.all([api('getMyMemberships'),api('getMySubmissions')]);
+    const data = await api('getStudentBootData');
+    myMemberships  = data.memberships  || [];
+    mySubmissions  = data.submissions  || [];
+    if (data.societies && data.societies.length) allSocieties = data.societies;
     renderStudentDashboard();
   } catch(err){console.error(err);}
 }
@@ -667,7 +670,9 @@ async function loadClubAdminData() {
   document.getElementById('ca-submissions-title').textContent=soc.name+' — Submissions';
   document.getElementById('ca-members-title').textContent=soc.name+' — Members';
   try {
-    [caSubmissions,caMembers]=await Promise.all([api('getClubSubmissions',{societyId:currentCASociety}),api('getClubMembers',{societyId:currentCASociety})]);
+    const data = await api('getClubBootData',{societyId:currentCASociety});
+    caSubmissions = data.submissions || [];
+    caMembers     = data.members     || [];
     renderCASubmissions(); renderCAMembers(); updateCAPendingBadge();
   } catch(err){console.error(err);}
 }
@@ -755,7 +760,11 @@ function showClubAdminTab(tab,el){
 // ── SUPER ADMIN ──
 async function loadSAData() {
   try {
-    [saProfiles,saSubmissions,saRoles]=await Promise.all([api('getAllProfiles'),api('getAllSubmissions'),api('getAllRoles')]);
+    const data = await api('getAdminBootData');
+    saProfiles    = data.profiles    || [];
+    saSubmissions = data.submissions || [];
+    saRoles       = data.roles       || [];
+    if (data.societies && data.societies.length) allSocieties = data.societies;
     renderSAStudents(); renderSASubmissions(); renderSARoles(); renderSAPending();
     buildSASocietyFilter(); updateSAPendingBadge(); populateRoleSelects();
   } catch(err){console.error(err);}

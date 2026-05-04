@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Honor Hours</title>
+<title>Thane</title>
+<link rel="icon" type="image/png" href="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -156,8 +157,7 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
 <div id="login-screen" class="screen active">
   <div class="login-card">
     <div class="login-header">
-      <div class="login-seal"><svg viewBox="0 0 24 24"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg></div>
-      <div class="login-title">Honor Hours</div>
+    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
       <div class="login-sub">Honor Society Hours Portal</div>
     </div>
     <div id="login-form">
@@ -189,7 +189,7 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
 <!-- STUDENT -->
 <div id="student-screen" class="screen">
   <nav>
-    <div class="nav-logo"><div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg></div>Honor Hours</div>
+    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
     <div class="nav-right"><span class="nav-user" id="student-nav-name"></span><button class="nav-btn" onclick="showAccountModal()">Account</button><button class="nav-btn" onclick="doLogout()">Sign Out</button></div>
   </nav>
   <div class="main-layout">
@@ -239,7 +239,7 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
 <!-- CLUB ADMIN -->
 <div id="clubadmin-screen" class="screen">
   <nav>
-    <div class="nav-logo"><div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg></div>Honor Hours<span style="color:var(--gold);font-size:12px;margin-left:6px">— Club Admin</span></div>
+    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
     <div class="nav-right">
       <select id="ca-society-select" style="background:rgba(255,255,255,0.1);color:#fff;border:0.5px solid rgba(255,255,255,0.2);padding:6px 12px;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif" onchange="loadClubAdminData()"></select>
       <button class="nav-btn" onclick="doLogout()">Sign Out</button>
@@ -274,7 +274,7 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
 <!-- SUPER ADMIN -->
 <div id="superadmin-screen" class="screen">
   <nav>
-    <div class="nav-logo"><div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg></div>Honor Hours<span style="color:var(--gold);font-size:12px;margin-left:6px">— Super Admin</span></div>
+    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
     <div class="nav-right"><button class="nav-btn" onclick="exportCSV()">Export CSV</button><button class="nav-btn" onclick="doLogout()">Sign Out</button></div>
   </nav>
   <div class="main-layout">
@@ -882,7 +882,7 @@ function exportCSV(){
       if(appHrs>0||penHrs>0) csv+=`"${p.full_name}","${p.username}","${p.grade}","${soc.name}",${appHrs},${penHrs}\n`;
     });
   });
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='honorhours_export.csv';a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='Thane_export.csv';a.click();
 }
 
 // ── REJECT MODAL ──

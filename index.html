@@ -30,7 +30,6 @@ nav{background:var(--black);padding:0 24px;display:flex;align-items:center;justi
 .login-card{background:var(--white);border-radius:var(--radius-lg);padding:40px 36px;width:420px;max-width:95vw;box-shadow:var(--shadow-md)}
 .login-header{text-align:center;margin-bottom:28px}
 .login-seal{width:60px;height:60px;background:var(--black);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
-.login-seal svg{width:32px;height:32px;fill:var(--gold-light)}
 .login-title{font-family:'Libre Baskerville',serif;font-size:22px;color:var(--black);margin-bottom:4px}
 .login-sub{font-size:13px;color:var(--text-muted)}
 .login-toggle{text-align:center;margin-top:18px;font-size:13px;color:var(--text-muted)}
@@ -148,15 +147,14 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
   .filter-row{flex-direction:column}
   .filter-row input,.filter-row select{width:100%}
   .approve-count{display:none}
-  .progress-bar-wrap{margin-top:12px}
-.progress-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:5px}
-.progress-bar-track{height:6px;background:var(--border);border-radius:99px;overflow:hidden}
-.progress-bar-fill{height:100%;border-radius:99px;background:var(--gold);transition:width 0.4s ease}
-.progress-bar-fill.complete{background:var(--success)}
-.goal-period-tag{font-size:10px;color:var(--text-light);margin-top:4px}
 }
 </style>
 </head>
+<body>
+
+<!-- ═══════════════════════ MODALS (outside screens so z-index is clean) ════════════════════ -->
+
+<!-- Add Student -->
 <div class="modal-backdrop" id="add-student-modal">
   <div class="modal" style="width:420px">
     <div class="modal-head">
@@ -176,23 +174,122 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
     </div>
   </div>
 </div>
-<body>
+
+<!-- Account settings -->
+<div class="modal-backdrop" id="account-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">Account Settings</div><button class="modal-close" onclick="closeModal('account-modal')">&#215;</button></div>
+    <div class="modal-body">
+      <div id="account-success" class="success-msg"></div>
+      <div class="section-title" style="margin-bottom:8px">Your Honor Societies</div>
+      <div class="info-msg">Check to request membership. Uncheck to leave a society.</div>
+      <div class="checkbox-grid" id="account-societies" style="margin-top:12px"></div>
+    </div>
+    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('account-modal')">Cancel</button><button class="btn-gold" onclick="saveAccountSocieties()">Save Changes</button></div>
+  </div>
+</div>
+
+<!-- Student submission detail -->
+<div class="modal-backdrop" id="sub-detail-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="sub-detail-title">Submission</div><button class="modal-close" onclick="closeModal('sub-detail-modal')">&#215;</button></div>
+    <div class="modal-body" id="sub-detail-body"></div>
+    <div class="modal-foot" id="sub-detail-foot"></div>
+  </div>
+</div>
+
+<!-- Add to more societies -->
+<div class="modal-backdrop" id="add-route-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-head"><div class="modal-title">Add to More Societies</div><button class="modal-close" onclick="closeModal('add-route-modal')">&#215;</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Select additional societies to submit this entry to. Each will start a new review.</p>
+      <div class="checkbox-grid" id="add-route-societies"></div>
+    </div>
+    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('add-route-modal')">Cancel</button><button class="btn-gold" onclick="saveAddRoutes()">Submit</button></div>
+  </div>
+</div>
+
+<!-- Club admin submission detail -->
+<div class="modal-backdrop" id="ca-sub-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="ca-sub-title">Submission</div><button class="modal-close" onclick="closeModal('ca-sub-modal')">&#215;</button></div>
+    <div class="modal-body" id="ca-sub-body"></div>
+    <div class="modal-foot" id="ca-sub-foot"></div>
+  </div>
+</div>
+
+<!-- Rejection comment -->
+<div class="modal-backdrop" id="reject-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-head"><div class="modal-title">Reject Submission</div><button class="modal-close" onclick="closeModal('reject-modal')">&#215;</button></div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--text-muted);margin-bottom:16px">Optionally explain why this is being rejected. The student will see this.</p>
+      <div class="field"><label>Rejection Note (optional)</label>
+        <textarea id="rejection-comment" placeholder="e.g. Signature is missing, please resubmit..." style="width:100%;padding:10px 12px;border:0.5px solid var(--border-strong);border-radius:var(--radius);font-size:14px;font-family:'DM Sans',sans-serif;min-height:80px;resize:vertical;outline:none"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('reject-modal')">Cancel</button><button class="btn-danger-solid" onclick="confirmReject()">Reject</button></div>
+  </div>
+</div>
+
+<!-- Super admin student detail -->
+<div class="modal-backdrop" id="sa-student-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="sa-student-title">Student</div><button class="modal-close" onclick="closeModal('sa-student-modal')">&#215;</button></div>
+    <div class="modal-body" id="sa-student-body"></div>
+    <div class="modal-foot" id="sa-student-foot"></div>
+  </div>
+</div>
+
+<!-- Assign admin role -->
+<div class="modal-backdrop" id="assign-role-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-head"><div class="modal-title">Assign Club Admin</div><button class="modal-close" onclick="closeModal('assign-role-modal')">&#215;</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Student</label><select id="role-user-select"><option value="">Select student...</option></select></div>
+      <div class="field"><label>Society</label><select id="role-society-select"><option value="">Select society...</option></select></div>
+    </div>
+    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('assign-role-modal')">Cancel</button><button class="btn-gold" onclick="assignRole()">Assign Admin</button></div>
+  </div>
+</div>
+
+<!-- Change password (forced on first login with default password) -->
+<div class="modal-backdrop" id="change-password-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-head"><div class="modal-title">Set a New Password</div></div>
+    <div class="modal-body">
+      <div class="info-msg" style="margin-bottom:16px">You're using a temporary password. Please set a new one before continuing.</div>
+      <div id="cp-error" class="error-msg"></div>
+      <div class="field"><label>New Password</label><input type="password" id="cp-new" placeholder="Min 8 characters"/></div>
+      <div class="field"><label>Confirm Password</label><input type="password" id="cp-confirm" placeholder="Repeat new password"/></div>
+    </div>
+    <div class="modal-foot"><button class="btn-gold" onclick="saveNewPassword()">Save Password</button></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SCREENS ══════════════════════════════════════════════════════════ -->
 
 <!-- LOGIN -->
 <div id="login-screen" class="screen active">
   <div class="login-card">
     <div class="login-header">
-    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
+      <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true" style="width:36px;height:36px;object-fit:contain"/></div>
+      <div class="login-title">Thane</div>
       <div class="login-sub">Honor Society Hours Portal</div>
     </div>
+
+    <!-- Sign-in form -->
     <div id="login-form">
       <div id="login-error" class="error-msg"></div>
-      <div class="field"><label>Username</label><input type="text" id="login-user" placeholder="e.g. jsmith23"/></div>
-      <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••"/></div>
+      <div class="field"><label>Username</label><input type="text" id="login-user" placeholder="e.g. jsmith23" autocomplete="username"/></div>
+      <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"/></div>
       <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign In</button>
       <div class="login-toggle">Forgot your password? <button class="link-btn" onclick="showForgotPassword()">Request reset</button></div>
       <div class="login-toggle">Don't have an account? <button class="link-btn" onclick="showRegister()">Request access</button></div>
     </div>
+
+    <!-- Register form -->
     <div id="register-form" style="display:none">
       <div id="reg-success" class="success-msg"></div>
       <div id="reg-error" class="error-msg"></div>
@@ -200,32 +297,40 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
         <div class="field"><label>First Name</label><input type="text" id="reg-first" placeholder="Jane"/></div>
         <div class="field"><label>Last Name</label><input type="text" id="reg-last" placeholder="Smith"/></div>
       </div>
-      <div class="field"><label>Username</label><input type="text" id="reg-user" placeholder="jsmith23"/></div>
-      <div class="field"><label>Password</label><input type="password" id="reg-pass" placeholder="8+ characters"/></div>
+      <div class="field"><label>Username</label><input type="text" id="reg-user" placeholder="jsmith23" autocomplete="username"/></div>
+      <div class="field"><label>Password</label><input type="password" id="reg-pass" placeholder="8+ characters" autocomplete="new-password"/></div>
       <div class="field"><label>Grade</label>
-        <select id="reg-grade"><option value="">Select grade</option><option>11th</option><option>12th</option></select>
+        <select id="reg-grade"><option value="">Select grade</option><option>9th</option><option>10th</option><option>11th</option><option>12th</option></select>
       </div>
       <div class="field"><label>Honor Societies</label><div class="checkbox-grid" id="reg-societies"><div class="loading-state" style="padding:12px 0;font-size:12px">Loading societies...</div></div></div>
       <button class="btn-primary" id="reg-btn" onclick="doRegister()">Submit Request</button>
       <div class="login-toggle">Already have an account? <button class="link-btn" onclick="showLogin()">Sign in</button></div>
     </div>
+
+    <!-- Forgot password form -->
     <div id="forgot-form" style="display:none">
-  <div id="forgot-success" class="success-msg"></div>
-  <div id="forgot-error" class="error-msg"></div>
-  <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Enter your username and a reset request will be sent to the admin.</p>
-  <div class="field"><label>Username</label><input type="text" id="forgot-user" placeholder="jsmith23"/></div>
-  <button class="btn-primary" id="forgot-btn" onclick="doForgotPassword()">Send Reset Request</button>
-  <div class="login-toggle">Remember your password? <button class="link-btn" onclick="showLogin()">Sign in</button></div>
-</div>
+      <div id="forgot-success" class="success-msg"></div>
+      <div id="forgot-error" class="error-msg"></div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Enter your username and a reset request will be sent to the admin.</p>
+      <div class="field"><label>Username</label><input type="text" id="forgot-user" placeholder="jsmith23"/></div>
+      <button class="btn-primary" id="forgot-btn" onclick="doForgotPassword()">Send Reset Request</button>
+      <div class="login-toggle">Remember your password? <button class="link-btn" onclick="showLogin()">Sign in</button></div>
+    </div>
   </div>
 </div>
 
 <!-- STUDENT -->
 <div id="student-screen" class="screen">
   <nav>
-    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true
-      " style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
-    <div class="nav-right"><span class="nav-user" id="student-nav-name"></span><button class="nav-btn" onclick="showAccountModal()">Account</button><button class="nav-btn" onclick="doLogout()">Sign Out</button></div>
+    <div class="nav-logo">
+      <div class="logo-icon"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true" style="width:20px;height:20px;object-fit:contain"/></div>
+      Thane
+    </div>
+    <div class="nav-right">
+      <span class="nav-user" id="student-nav-name"></span>
+      <button class="nav-btn" onclick="showAccountModal()">Account</button>
+      <button class="nav-btn" onclick="doLogout()">Sign Out</button>
+    </div>
   </nav>
   <div class="main-layout">
     <div class="sidebar">
@@ -235,10 +340,16 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
       <div class="sidebar-link" onclick="showStudentTab('history',this)">My Submissions</div>
     </div>
     <div class="content">
+      <!-- Dashboard -->
       <div id="student-dashboard">
-        <div class="page-header"><div class="page-title" id="student-greeting">Welcome back</div><div class="page-sub">Your hours across all honor societies.</div></div>
+        <div class="page-header">
+          <div class="page-title" id="student-greeting">Welcome back</div>
+          <div class="page-sub">Your hours across all honor societies.</div>
+        </div>
         <div id="society-cards-container"><div class="loading-state">Loading...</div></div>
       </div>
+
+      <!-- Submit hours -->
       <div id="student-submit" style="display:none">
         <div class="page-header"><div class="page-title">Submit Hours</div><div class="page-sub">Select which societies to submit to and have your sponsor sign below.</div></div>
         <div class="card"><div class="card-body">
@@ -250,15 +361,25 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
             <div class="field"><label>Hours Served</label><input type="number" id="evt-hours" min="0.5" max="24" step="0.5" placeholder="2.5"/></div>
             <div class="field full"><label>Sponsor / Organization Name</label><input type="text" id="evt-sponsor" placeholder="e.g. Ms. Johnson — Community Food Bank"/></div>
             <div class="field full"><label>Description (optional)</label><textarea id="evt-desc" placeholder="Brief description of what you did..."></textarea></div>
-            <div class="field full" id="sponsored-field"><label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:14px;cursor:pointer"><input type="checkbox" id="evt-sponsored"/> This is a <strong>sponsored</strong> event</label></div>
+            <div class="field full" id="sponsored-field">
+              <label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:14px;cursor:pointer">
+                <input type="checkbox" id="evt-sponsored"/> This is a <strong>sponsored</strong> event
+              </label>
+            </div>
             <div class="field full"><label>Submit to Honor Societies</label><div class="checkbox-grid" id="submit-societies"></div></div>
-            <div class="field full" id="sig-field"><label>Sponsor Digital Signature</label>
-              <div class="sig-area"><div class="sig-label"><span>Have your sponsor sign below</span><button class="link-btn" onclick="clearSig()">Clear</button></div><canvas id="sigCanvas"></canvas></div>
+            <div class="field full" id="sig-field">
+              <label>Sponsor Digital Signature</label>
+              <div class="sig-area">
+                <div class="sig-label"><span>Have your sponsor sign below</span><button class="link-btn" onclick="clearSig()">Clear</button></div>
+                <canvas id="sigCanvas"></canvas>
+              </div>
             </div>
           </div>
-          <div style="margin-top:20px"><button class="btn-primary" id="submit-btn" onclick="submitHours()" style="width:auto;padding:12px 32px">Submit for Approval</button></div>
+          <div style="margin-top:20px"><button class="btn-primary" id="submit-btn" onclick="doSubmitHours()" style="width:auto;padding:12px 32px">Submit for Approval</button></div>
         </div></div>
       </div>
+
+      <!-- History -->
       <div id="student-history" style="display:none">
         <div class="page-header"><div class="page-title">My Submissions</div><div class="page-sub">All submissions and their status per society.</div></div>
         <div class="filter-row">
@@ -274,7 +395,10 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
 <!-- CLUB ADMIN -->
 <div id="clubadmin-screen" class="screen">
   <nav>
-    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
+    <div class="nav-logo">
+      <div class="logo-icon"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true" style="width:20px;height:20px;object-fit:contain"/></div>
+      Thane
+    </div>
     <div class="nav-right">
       <select id="ca-society-select" style="background:rgba(255,255,255,0.1);color:#fff;border:0.5px solid rgba(255,255,255,0.2);padding:6px 12px;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif" onchange="loadClubAdminData()"></select>
       <button class="nav-btn" onclick="doLogout()">Sign Out</button>
@@ -284,45 +408,11 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
     <div class="sidebar">
       <div class="sidebar-section">Club Admin</div>
       <div class="sidebar-link active" onclick="showClubAdminTab('ca-submissions',this)">Submissions</div>
-
       <div class="sidebar-link" onclick="showClubAdminTab('ca-members',this)">Members <span id="ca-pending-badge" class="approve-count" style="margin-left:6px"></span></div>
-      <div id="ca-settings" style="display:none">
-  <div class="page-header"><div class="page-title" id="ca-settings-title">Club Settings</div><div class="page-sub">Configure submission requirements for this society.</div></div>
-  <div class="card"><div class="card-body">
-    <div id="ca-settings-success" class="success-msg"></div>
-    <div id="ca-settings-error" class="error-msg"></div>
-    <div class="section-title" style="margin-bottom:14px">Hour Goal</div>
-<div style="display:flex;gap:16px;align-items:flex-end;margin-bottom:24px;flex-wrap:wrap">
-  <div class="field" style="margin:0;flex:1;min-width:120px">
-    <label>Hours Required</label>
-    <input type="number" id="setting-hour-goal" min="1" max="200" step="1" placeholder="10" style="width:100%"/>
-  </div>
-  <div class="field" style="margin:0;flex:1;min-width:140px">
-    <label>Resets Every</label>
-    <select id="setting-goal-period" style="width:100%;padding:10px 12px;border:0.5px solid var(--border-strong);border-radius:var(--radius);font-size:14px;font-family:'DM Sans',sans-serif;background:var(--white);outline:none">
-      <option value="year">Year</option>
-      <option value="semester">Semester</option>
-    </select>
-  </div>
-</div>
-    <div class="section-title" style="margin-bottom:14px">Submission Requirements</div>
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;padding:14px;border:0.5px solid var(--border-strong);border-radius:var(--radius)">
-        <input type="checkbox" id="setting-signature" style="width:18px;height:18px;accent-color:var(--black);margin-top:2px;flex-shrink:0"/>
-        <div><div style="font-weight:500;font-size:14px">Require Sponsor Signature</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:3px">If disabled, the signature box will not appear on submissions for this society.</div></div>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;padding:14px;border:0.5px solid var(--border-strong);border-radius:var(--radius)">
-        <input type="checkbox" id="setting-sponsored" style="width:18px;height:18px;accent-color:var(--black);margin-top:2px;flex-shrink:0"/>
-        <div><div style="font-weight:500;font-size:14px">Track Sponsored Hours</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:3px">If disabled, the sponsored checkbox will not appear and hours will not be split by type.</div></div>
-      </label>
-    </div>
-    <div style="margin-top:20px"><button class="btn-gold" id="save-settings-btn" onclick="saveClubSettings()" style="padding:10px 28px">Save Settings</button></div>
-  </div></div>
-</div>
+      <div class="sidebar-link" onclick="showClubAdminTab('ca-settings',this)">Settings</div>
     </div>
     <div class="content">
+      <!-- Submissions -->
       <div id="ca-submissions">
         <div class="page-header"><div class="page-title" id="ca-submissions-title">Submissions</div><div class="page-sub">Review and approve hour submissions for this society.</div></div>
         <div class="filter-row">
@@ -334,23 +424,53 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
           <tbody id="ca-submissions-tbody"><tr><td colspan="6"><div class="loading-state">Loading...</div></td></tr></tbody>
         </table></div></div>
       </div>
+
+      <!-- Members -->
       <div id="ca-members" style="display:none">
         <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
-  <div><div class="page-title" id="ca-members-title">Members</div><div class="page-sub">Approve or deny membership requests.</div></div>
-  <button class="btn-gold" onclick="openAddStudentModal()">+ Add Student</button>
-</div>
+          <div><div class="page-title" id="ca-members-title">Members</div><div class="page-sub">Approve or deny membership requests.</div></div>
+          <button class="btn-gold" onclick="openAddStudentModal()">+ Add Student</button>
+        </div>
         <div class="card"><div class="card-body" id="ca-members-list"><div class="loading-state">Loading...</div></div></div>
+      </div>
+
+      <!-- Settings — FIX: moved from sidebar into content area -->
+      <div id="ca-settings" style="display:none">
+        <div class="page-header"><div class="page-title" id="ca-settings-title">Club Settings</div><div class="page-sub">Configure submission requirements for this society.</div></div>
+        <div class="card"><div class="card-body">
+          <div id="ca-settings-success" class="success-msg"></div>
+          <div id="ca-settings-error" class="error-msg"></div>
+          <div class="section-title" style="margin-bottom:14px">Submission Requirements</div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;padding:14px;border:0.5px solid var(--border-strong);border-radius:var(--radius)">
+              <input type="checkbox" id="setting-signature" style="width:18px;height:18px;accent-color:var(--black);margin-top:2px;flex-shrink:0"/>
+              <div><div style="font-weight:500;font-size:14px">Require Sponsor Signature</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:3px">If disabled, the signature box will not appear on submissions for this society.</div></div>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;padding:14px;border:0.5px solid var(--border-strong);border-radius:var(--radius)">
+              <input type="checkbox" id="setting-sponsored" style="width:18px;height:18px;accent-color:var(--black);margin-top:2px;flex-shrink:0"/>
+              <div><div style="font-weight:500;font-size:14px">Track Sponsored Hours</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:3px">If disabled, the sponsored checkbox will not appear and hours will not be split by type.</div></div>
+            </label>
+          </div>
+          <div style="margin-top:20px"><button class="btn-gold" id="save-settings-btn" onclick="saveClubSettings()" style="padding:10px 28px">Save Settings</button></div>
+        </div></div>
       </div>
     </div>
   </div>
 </div>
 
-
 <!-- SUPER ADMIN -->
 <div id="superadmin-screen" class="screen">
   <nav>
-    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
-    <div class="nav-right"><button class="nav-btn" onclick="exportCSV()">Export CSV</button><button class="nav-btn" onclick="doLogout()">Sign Out</button></div>
+    <div class="nav-logo">
+      <div class="logo-icon"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true" style="width:20px;height:20px;object-fit:contain"/></div>
+      Thane
+    </div>
+    <div class="nav-right">
+      <button class="nav-btn" onclick="exportCSV()">Export CSV</button>
+      <button class="nav-btn" onclick="doLogout()">Sign Out</button>
+    </div>
   </nav>
   <div class="main-layout">
     <div class="sidebar">
@@ -366,13 +486,14 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
         <div class="page-header"><div class="page-title">Student Roster</div><div class="page-sub">All registered students across all societies.</div></div>
         <div class="filter-row">
           <input type="text" id="sa-student-search" placeholder="Search by name or username..." oninput="renderSAStudents()"/>
-          <select id="sa-grade-filter" onchange="renderSAStudents()"><option value="">All grades</option><option>11th</option><option>12th</option></select>
+          <select id="sa-grade-filter" onchange="renderSAStudents()"><option value="">All grades</option><option>9th</option><option>10th</option><option>11th</option><option>12th</option></select>
         </div>
         <div class="card"><div class="table-wrap"><table>
           <thead><tr><th>Student</th><th>Grade</th><th>Admin Roles</th><th></th></tr></thead>
           <tbody id="sa-students-tbody"><tr><td colspan="4"><div class="loading-state">Loading...</div></td></tr></tbody>
         </table></div></div>
       </div>
+
       <div id="sa-submissions" style="display:none">
         <div class="page-header"><div class="page-title">All Submissions</div><div class="page-sub">Every submission across all societies.</div></div>
         <div class="filter-row">
@@ -385,239 +506,176 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
           <tbody id="sa-submissions-tbody"><tr><td colspan="5"><div class="loading-state">Loading...</div></td></tr></tbody>
         </table></div></div>
       </div>
+
       <div id="sa-roles" style="display:none">
         <div class="page-header"><div class="page-title">Admin Roles</div><div class="page-sub">Assign or remove club admin privileges per society.</div></div>
-        <div class="card"><div class="card-header"><div class="card-title">Current Admins</div><button class="btn-gold" onclick="openModal('assign-role-modal')" style="padding:6px 14px;font-size:13px">+ Assign Admin</button></div><div class="card-body" id="sa-roles-list"><div class="loading-state">Loading...</div></div></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Current Admins</div><button class="btn-gold" onclick="openModal('assign-role-modal')" style="padding:6px 14px;font-size:13px">+ Assign Admin</button></div>
+          <div class="card-body" id="sa-roles-list"><div class="loading-state">Loading...</div></div>
+        </div>
       </div>
+
       <div id="sa-pending" style="display:none">
         <div class="page-header"><div class="page-title">Pending Account Requests</div><div class="page-sub">Approve or deny new student registrations.</div></div>
         <div class="card"><div class="card-body" id="sa-pending-list"><div class="loading-state">Loading...</div></div></div>
       </div>
+
       <div id="sa-resets" style="display:none">
-      <div class="page-header"><div class="page-title">Password Reset Requests</div><div class="page-sub">Set a new temporary password for users who have forgotten theirs.</div></div>
-    <div class="card"><div class="card-body" id="sa-resets-list"><div class="loading-state">Loading...</div></div></div>
-  </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: Account settings -->
-<div class="modal-backdrop" id="account-modal">
-  <div class="modal">
-    <div class="modal-head"><div class="modal-title">Account Settings</div><button class="modal-close" onclick="closeModal('account-modal')">&#215;</button></div>
-    <div class="modal-body">
-      <div id="account-success" class="success-msg"></div>
-      <div class="section-title" style="margin-bottom:8px">Your Honor Societies</div>
-      <div class="info-msg">Check to request membership. Uncheck to leave a society.</div>
-      <div class="checkbox-grid" id="account-societies" style="margin-top:12px"></div>
-    </div>
-    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('account-modal')">Cancel</button><button class="btn-gold" onclick="saveAccountSocieties()">Save Changes</button></div>
-  </div>
-</div>
-
-<!-- MODAL: Student submission detail -->
-<div class="modal-backdrop" id="sub-detail-modal">
-  <div class="modal">
-    <div class="modal-head"><div class="modal-title" id="sub-detail-title">Submission</div><button class="modal-close" onclick="closeModal('sub-detail-modal')">&#215;</button></div>
-    <div class="modal-body" id="sub-detail-body"></div>
-    <div class="modal-foot" id="sub-detail-foot"></div>
-  </div>
-</div>
-
-<!-- MODAL: Add to more societies -->
-<div class="modal-backdrop" id="add-route-modal">
-  <div class="modal" style="width:420px">
-    <div class="modal-head"><div class="modal-title">Add to More Societies</div><button class="modal-close" onclick="closeModal('add-route-modal')">&#215;</button></div>
-    <div class="modal-body">
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Select additional societies to submit this entry to. Each will start a new review.</p>
-      <div class="checkbox-grid" id="add-route-societies"></div>
-    </div>
-    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('add-route-modal')">Cancel</button><button class="btn-gold" onclick="saveAddRoutes()">Submit</button></div>
-  </div>
-</div>
-
-<!-- MODAL: Club admin submission detail -->
-<div class="modal-backdrop" id="ca-sub-modal">
-  <div class="modal">
-    <div class="modal-head"><div class="modal-title" id="ca-sub-title">Submission</div><button class="modal-close" onclick="closeModal('ca-sub-modal')">&#215;</button></div>
-    <div class="modal-body" id="ca-sub-body"></div>
-    <div class="modal-foot" id="ca-sub-foot"></div>
-  </div>
-</div>
-
-<!-- MODAL: Rejection comment -->
-<div class="modal-backdrop" id="reject-modal">
-  <div class="modal" style="width:420px">
-    <div class="modal-head"><div class="modal-title">Reject Submission</div><button class="modal-close" onclick="closeModal('reject-modal')">&#215;</button></div>
-    <div class="modal-body">
-      <p style="font-size:14px;color:var(--text-muted);margin-bottom:16px">Optionally explain why this is being rejected. The student will see this.</p>
-      <div class="field"><label>Rejection Note (optional)</label>
-        <textarea id="rejection-comment" placeholder="e.g. Signature is missing, please resubmit..." style="width:100%;padding:10px 12px;border:0.5px solid var(--border-strong);border-radius:var(--radius);font-size:14px;font-family:'DM Sans',sans-serif;min-height:80px;resize:vertical;outline:none"></textarea>
+        <div class="page-header"><div class="page-title">Password Reset Requests</div><div class="page-sub">Set a new temporary password for users who have forgotten theirs.</div></div>
+        <div class="card"><div class="card-body" id="sa-resets-list"><div class="loading-state">Loading...</div></div></div>
       </div>
     </div>
-    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('reject-modal')">Cancel</button><button class="btn-danger-solid" onclick="confirmReject()">Reject</button></div>
   </div>
 </div>
 
-<!-- MODAL: Super admin student detail -->
-<div class="modal-backdrop" id="sa-student-modal">
-  <div class="modal">
-    <div class="modal-head"><div class="modal-title" id="sa-student-title">Student</div><button class="modal-close" onclick="closeModal('sa-student-modal')">&#215;</button></div>
-    <div class="modal-body" id="sa-student-body"></div>
-    <div class="modal-foot" id="sa-student-foot"></div>
-  </div>
-</div>
-
-<!-- MODAL: Assign admin role -->
-<div class="modal-backdrop" id="assign-role-modal">
-  <div class="modal" style="width:420px">
-    <div class="modal-head"><div class="modal-title">Assign Club Admin</div><button class="modal-close" onclick="closeModal('assign-role-modal')">&#215;</button></div>
-    <div class="modal-body">
-      <div class="field"><label>Student</label><select id="role-user-select"><option value="">Select student...</option></select></div>
-      <div class="field"><label>Society</label><select id="role-society-select"><option value="">Select society...</option></select></div>
-    </div>
-    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('assign-role-modal')">Cancel</button><button class="btn-gold" onclick="assignRole()">Assign Admin</button></div>
-  </div>
-</div>
-
+<!-- ═══════════════════════ JAVASCRIPT ═══════════════════════════════════════════════════════ -->
 <script>
-const API_URL = 'https://api-935363440192.us-central1.run.app'
+const API_URL = 'const API_URL = 'https://us-central1-thane-5dc8c.cloudfunctions.net/api';';
 
-async function api(action, payload) {
-  const token = localStorage.getItem('hh_token') || '';
-  const res   = await fetch(API_URL, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ action, payload: payload || {}, token })
+// ── API ──────────────────────────────────────────────────
+function api(action, payload) {
+  return new Promise((resolve, reject) => {
+    const token  = localStorage.getItem('hh_token') || '';
+    const body   = JSON.stringify({ action, payload: payload || {}, token });
+    const cbName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+    const url    = API_URL + '?data=' + encodeURIComponent(body) + '&callback=' + cbName;
+    const s      = document.createElement('script');
+
+    let done = false;
+    const cleanup = () => { done = true; delete window[cbName]; try { document.head.removeChild(s); } catch(_) {} };
+
+    window[cbName] = d => { cleanup(); if (d.error) reject(new Error(d.error)); else resolve(d); };
+    s.onerror = () => { cleanup(); reject(new Error('Network error — check API URL')); };
+    setTimeout(() => { if (!done) { cleanup(); reject(new Error('Request timed out')); } }, 45000);
+
+    s.src = url;
+    document.head.appendChild(s);
   });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error);
-  return data;
 }
 
-let currentProfile=null, currentRole=null, adminSocieties=[];
-let allSocieties=[], myMemberships=[], mySubmissions=[];
-let caSubmissions=[], caMembers=[], currentCASociety=null;
-let saProfiles=[], saSubmissions=[], saRoles=[];
-let sigData=null, isDrawing=false, rejectCtx={}, addRouteSubId=null;
+// ── STATE ────────────────────────────────────────────────
+let currentProfile = null, currentRole = null, adminSocieties = [];
+let allSocieties = [], myMemberships = [], mySubmissions = [];
+let caSubmissions = [], caMembers = [], currentCASociety = null;
+let saProfiles = [], saSubmissions = [], saRoles = [];
+let sigData = null, isDrawing = false, rejectCtx = {}, addRouteSubId = null;
 
+// ── BOOT ─────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
+  // Load societies for the register form even before login
   try {
     allSocieties = await api('getSocieties');
     buildSocietyCheckboxes('reg-societies', []);
   } catch (_) {}
 
-  const tok = localStorage.getItem('hh_token');
+  // Restore session from localStorage
+  const tok  = localStorage.getItem('hh_token');
   const prof = localStorage.getItem('hh_profile');
-  const rol = localStorage.getItem('hh_role');
-  const adm = localStorage.getItem('hh_admin_societies');
+  const rol  = localStorage.getItem('hh_role');
+  const adm  = localStorage.getItem('hh_admin_societies');
 
   if (tok && prof) {
-    currentProfile = JSON.parse(prof);
-    currentRole = rol;
-    adminSocieties = adm ? JSON.parse(adm) : [];
-
+    currentProfile   = JSON.parse(prof);
+    currentRole      = rol;
+    adminSocieties   = adm ? JSON.parse(adm) : [];
     await bootScreen();
-
-    if (currentProfile.password === '1234567890') {
-      openChangePasswordModal();
-    }
+    // NOTE: we can't reliably check default password from stored profile
+    // (hash is not stored client-side). The server sends isDefaultPassword on login.
   }
 });
 
 async function bootScreen() {
-  if (currentRole==='superadmin') { showScreen('superadmin-screen'); await loadSAData(); }
-  else if (currentRole==='clubadmin') { showScreen('clubadmin-screen'); buildCASocietySelect(); await loadClubAdminData(); }
-  else { showStudentScreen(); }
+  if (currentRole === 'superadmin') {
+    showScreen('superadmin-screen');
+    await loadSAData();
+  } else if (currentRole === 'clubadmin') {
+    showScreen('clubadmin-screen');
+    buildCASocietySelect();
+    await loadClubAdminData();
+  } else {
+    await showStudentScreen();
+  }
 }
 
-async function loadResetRequests() {
-  try {
-    const requests = await api('getResetRequests');
-    renderResetRequests(requests);
-    const b = document.getElementById('sa-resets-badge');
-    b.textContent = requests.length || '';
-    b.style.display = requests.length ? 'inline' : 'none';
-  } catch(err) { console.error(err); }
-}
-
-function renderResetRequests(requests) {
-  const list = document.getElementById('sa-resets-list');
-  if (!requests.length) { list.innerHTML = '<div class="empty-state">No pending reset requests.</div>'; return; }
-  list.innerHTML = requests.map(r => `
-    <div class="sub-row">
-      <div><div style="font-weight:500">${esc(r.full_name)}</div>
-      <div style="font-size:12px;color:var(--text-muted)">@${esc(r.username)} · Requested ${fmtDate(r.requested_at.split('T')[0])}</div></div>
-      <button class="btn-gold" style="padding:5px 12px;font-size:12px" onclick="openResetPasswordModal('${r.user_id}','${r.username}')">Reset Password</button>
-    </div>`).join('');
-}
-
-function openResetPasswordModal(userId, username) {
-  const newPass = prompt(`Set a new temporary password for @${username} (min 8 characters):`);
-  if (!newPass) return;
-  if (newPass.length < 8) { alert('Password must be at least 8 characters.'); return; }
-  api('resetUserPassword', { userId, newPassword: newPass })
-    .then(() => { alert(`Password reset successfully. Tell ${username} their new password is: ${newPass}`); loadResetRequests(); })
-    .catch(err => alert(err.message));
-}
-
+// ── AUTH ─────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
-  if (e.key!=='Enter') return;
+  if (e.key !== 'Enter') return;
   if (!document.getElementById('login-screen').classList.contains('active')) return;
-  document.getElementById('register-form').style.display!=='none' ? doRegister() : doLogin();
+  if (document.getElementById('register-form').style.display !== 'none') doRegister();
+  else if (document.getElementById('forgot-form').style.display !== 'none') doForgotPassword();
+  else doLogin();
 });
 
 async function doLogin() {
-  const username=v('login-user'), password=v('login-pass');
-  hideEl('login-error'); setBtnLoading('login-btn',true,'Signing in...');
+  const username = v('login-user'), password = v('login-pass');
+  hideEl('login-error');
+  setBtnLoading('login-btn', true, 'Signing in...');
   try {
-    const res=await api('login',{username,password});
-    localStorage.setItem('hh_token',res.token);
-    localStorage.setItem('hh_profile',JSON.stringify(res.profile));
-    localStorage.setItem('hh_role',res.role);
-    localStorage.setItem('hh_admin_societies',JSON.stringify(res.adminSocieties||[]));
-    currentProfile=res.profile; currentRole=res.role; adminSocieties=res.adminSocieties||[];
+    const res = await api('login', { username, password });
+    localStorage.setItem('hh_token',          res.token);
+    localStorage.setItem('hh_profile',        JSON.stringify(res.profile));
+    localStorage.setItem('hh_role',           res.role);
+    localStorage.setItem('hh_admin_societies', JSON.stringify(res.adminSocieties || []));
+    currentProfile  = res.profile;
+    currentRole     = res.role;
+    adminSocieties  = res.adminSocieties || [];
     await bootScreen();
-    currentProfile=res.profile; currentRole=res.role; adminSocieties=res.adminSocieties||[];
-    await bootScreen();
-    if (password === '1234567890') openChangePasswordModal();
-  } catch(err){showEl('login-error',err.message);}
-  setBtnLoading('login-btn',false,'Sign In');
+    // Server explicitly tells us if this is a default password
+    if (res.isDefaultPassword) openChangePasswordModal();
+  } catch (err) {
+    showEl('login-error', err.message);
+  }
+  setBtnLoading('login-btn', false, 'Sign In');
 }
+
 async function doRegister() {
-  const first=v('reg-first'),last=v('reg-last'),user=v('reg-user'),pass=v('reg-pass'),grade=v('reg-grade'),socs=getChecked('reg-societies');
+  const first = v('reg-first'), last = v('reg-last'), user = v('reg-user'),
+        pass  = v('reg-pass'), grade = v('reg-grade'), socs = getChecked('reg-societies');
   hideEl('reg-error'); hideEl('reg-success');
-  if(!first||!last||!user||!pass||!grade){showEl('reg-error','Please fill in all fields.');return;}
-  if(pass.length<8){showEl('reg-error','Password must be at least 8 characters.');return;}
-  if(!socs.length){showEl('reg-error','Please select at least one honor society.');return;}
-  setBtnLoading('reg-btn',true,'Submitting...');
+  if (!first || !last || !user || !pass || !grade) { showEl('reg-error', 'Please fill in all fields.'); return; }
+  if (pass.length < 8)  { showEl('reg-error', 'Password must be at least 8 characters.'); return; }
+  if (!socs.length)     { showEl('reg-error', 'Please select at least one honor society.'); return; }
+  setBtnLoading('reg-btn', true, 'Submitting...');
   try {
-    await api('register',{first,last,username:user,password:pass,grade,societyIds:socs});
-    showEl('reg-success','Request submitted! An admin will review your account shortly.');
-    ['reg-first','reg-last','reg-user','reg-pass'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('reg-grade').value='';
-    document.querySelectorAll('#reg-societies input').forEach(cb=>cb.checked=false);
-    document.querySelectorAll('#reg-societies .checkbox-item').forEach(el=>el.classList.remove('checked'));
-  } catch(err){showEl('reg-error',err.message);}
-  setBtnLoading('reg-btn',false,'Submit Request');
+    await api('register', { first, last, username: user, password: pass, grade, societyIds: socs });
+    showEl('reg-success', 'Request submitted! An admin will review your account shortly.');
+    ['reg-first','reg-last','reg-user','reg-pass'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('reg-grade').value = '';
+    document.querySelectorAll('#reg-societies input').forEach(cb => cb.checked = false);
+    document.querySelectorAll('#reg-societies .checkbox-item').forEach(el => el.classList.remove('checked'));
+  } catch (err) { showEl('reg-error', err.message); }
+  setBtnLoading('reg-btn', false, 'Submit Request');
 }
 
 async function doLogout() {
-  try{await api('logout');}catch(_){}
-  ['hh_token','hh_profile','hh_role','hh_admin_societies'].forEach(k=>localStorage.removeItem(k));
-  currentProfile=null; currentRole=null; adminSocieties=[];
-  allSocieties=[]; myMemberships=[]; mySubmissions=[];
+  try { await api('logout'); } catch (_) {}
+  ['hh_token','hh_profile','hh_role','hh_admin_societies'].forEach(k => localStorage.removeItem(k));
+  currentProfile = null; currentRole = null; adminSocieties = [];
+  allSocieties = []; myMemberships = []; mySubmissions = [];
+  caSubmissions = []; caMembers = []; currentCASociety = null;
+  saProfiles = []; saSubmissions = []; saRoles = [];
   showScreen('login-screen');
-  document.getElementById('login-user').value='';
-  document.getElementById('login-pass').value='';
-  hideEl('login-error'); setBtnLoading('login-btn',false,'Sign In');
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  hideEl('login-error');
+  setBtnLoading('login-btn', false, 'Sign In');
 }
 
-function showRegister(){document.getElementById('login-form').style.display='none';document.getElementById('register-form').style.display='block';}
-function showForgotPassword() {
-  document.getElementById('login-form').style.display = 'none';
+// Show correct login sub-form
+function showLogin() {
   document.getElementById('register-form').style.display = 'none';
-  document.getElementById('forgot-form').style.display = 'block';
+  document.getElementById('forgot-form').style.display   = 'none';
+  document.getElementById('login-form').style.display    = 'block';
+}
+function showRegister() {
+  document.getElementById('login-form').style.display    = 'none';
+  document.getElementById('forgot-form').style.display   = 'none';
+  document.getElementById('register-form').style.display = 'block';
+}
+function showForgotPassword() {
+  document.getElementById('login-form').style.display    = 'none';
+  document.getElementById('register-form').style.display = 'none';
+  document.getElementById('forgot-form').style.display   = 'block';
   hideEl('forgot-error'); hideEl('forgot-success');
 }
 
@@ -629,20 +687,13 @@ async function doForgotPassword() {
   try {
     await api('requestPasswordReset', { username });
     showEl('forgot-success', 'Reset request sent! The admin will contact you with a new password.');
-  } catch(err) { showEl('forgot-error', err.message); }
+  } catch (err) { showEl('forgot-error', err.message); }
   setBtnLoading('forgot-btn', false, 'Send Reset Request');
 }
-function showLogin(){document.getElementById('register-form').style.display='none';document.getElementById('login-form').style.display='block';}
 
-// ── STUDENT ──
-async function showStudentScreen() {
-  document.getElementById('student-nav-name').textContent=currentProfile.full_name;
-  document.getElementById('student-greeting').textContent='Welcome back, '+currentProfile.full_name.split(' ')[0];
-  showScreen('student-screen');
-  await loadStudentData();
-}
+// Change-password modal (forced when isDefaultPassword is true)
 function openChangePasswordModal() {
-  document.getElementById('cp-new').value = '';
+  document.getElementById('cp-new').value     = '';
   document.getElementById('cp-confirm').value = '';
   hideEl('cp-error');
   openModal('change-password-modal');
@@ -656,208 +707,230 @@ async function saveNewPassword() {
   try {
     await api('changeMyPassword', { newPassword: newPass });
     closeModal('change-password-modal');
-  } catch(err) { showEl('cp-error', err.message); }
+  } catch (err) { showEl('cp-error', err.message); }
 }
+
+// ── STUDENT ──────────────────────────────────────────────
+async function showStudentScreen() {
+  document.getElementById('student-nav-name').textContent = currentProfile.full_name;
+  document.getElementById('student-greeting').textContent = 'Welcome back, ' + currentProfile.full_name.split(' ')[0];
+  showScreen('student-screen');
+  await loadStudentData();
+}
+
 async function loadStudentData() {
   try {
-    const data = await api('getStudentBootData');
-    myMemberships  = data.memberships  || [];
-    mySubmissions  = data.submissions  || [];
+    const data    = await api('getStudentBootData');
+    myMemberships = data.memberships || [];
+    mySubmissions = data.submissions || [];
     if (data.societies && data.societies.length) allSocieties = data.societies;
     renderStudentDashboard();
-  } catch(err){console.error(err);}
+  } catch (err) { console.error('loadStudentData:', err); }
 }
 
 function renderStudentDashboard() {
-  const c=document.getElementById('society-cards-container');
-  if(!myMemberships.length){c.innerHTML='<div class="empty-state">You are not a member of any honor societies yet.</div>';return;}
-  const approved=myMemberships.filter(m=>m.approved), pending=myMemberships.filter(m=>!m.approved);
-  let html='<div class="society-grid">';
-  approved.forEach(m=>{
-    const soc=allSocieties.find(s=>s.id===m.society_id)||{};
-    const subs=mySubmissions.filter(sub=>sub.routes&&sub.routes.some(r=>r.society_id===m.society_id));
-    const appHrs=subs.reduce((a,sub)=>{const r=sub.routes.find(r=>r.society_id===m.society_id);return a+(r&&r.status==='approved'?sub.hours:0);},0);
-    const penHrs=subs.reduce((a,sub)=>{const r=sub.routes.find(r=>r.society_id===m.society_id);return a+(r&&r.status==='pending'?sub.hours:0);},0);
-   const goal    = soc.hour_goal   || 10;
-const period  = soc.goal_period || 'year';
-const pct     = Math.min(100, Math.round((appHrs / goal) * 100));
-const complete = appHrs >= goal;
-html += `<div class="society-card">
-  <div class="society-card-name">${esc(soc.name || m.society_id)}</div>
-  <div class="society-card-short">${esc(soc.short_name || '')}</div>
-  <div class="society-stats">
-    <div class="society-stat"><div class="society-stat-val">${appHrs}</div><div class="society-stat-label">Approved hrs</div></div>
-    <div class="society-stat"><div class="society-stat-val">${penHrs}</div><div class="society-stat-label">Pending hrs</div></div>
-    <div class="society-stat"><div class="society-stat-val">${subs.length}</div><div class="society-stat-label">Submissions</div></div>
-  </div>
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-label">
-      <span>${complete ? '✓ Goal reached' : `${appHrs} / ${goal} hrs`}</span>
-      <span>${pct}%</span>
-    </div>
-    <div class="progress-bar-track"><div class="progress-bar-fill ${complete ? 'complete' : ''}" style="width:${pct}%"></div></div>
-    <div class="goal-period-tag">Goal resets per ${period}</div>
-  </div>
-</div>`;
+  const c = document.getElementById('society-cards-container');
+  if (!myMemberships.length) {
+    c.innerHTML = '<div class="empty-state">You are not a member of any honor societies yet.</div>';
+    return;
+  }
+  const approved = myMemberships.filter(m => m.approved);
+  const pending  = myMemberships.filter(m => !m.approved);
+  let html = '<div class="society-grid">';
+  approved.forEach(m => {
+    const soc    = allSocieties.find(s => s.id === m.society_id) || {};
+    const subs   = mySubmissions.filter(sub => sub.routes && sub.routes.some(r => r.society_id === m.society_id));
+    const appHrs = subs.reduce((a, sub) => { const r = sub.routes.find(r => r.society_id === m.society_id); return a + (r && r.status === 'approved' ? sub.hours : 0); }, 0);
+    const penHrs = subs.reduce((a, sub) => { const r = sub.routes.find(r => r.society_id === m.society_id); return a + (r && r.status === 'pending'  ? sub.hours : 0); }, 0);
+    html += `<div class="society-card">
+      <div class="society-card-name">${esc(soc.name || m.society_id)}</div>
+      <div class="society-card-short">${esc(soc.short_name || '')}</div>
+      <div class="society-stats">
+        <div class="society-stat"><div class="society-stat-val">${appHrs}</div><div class="society-stat-label">Approved hrs</div></div>
+        <div class="society-stat"><div class="society-stat-val">${penHrs}</div><div class="society-stat-label">Pending hrs</div></div>
+        <div class="society-stat"><div class="society-stat-val">${subs.length}</div><div class="society-stat-label">Submissions</div></div>
+      </div></div>`;
   });
-  pending.forEach(m=>{
-    const soc=allSocieties.find(s=>s.id===m.society_id)||{};
-    html+=`<div class="society-card pending"><span class="society-pending-badge">Pending approval</span><div class="society-card-name">${esc(soc.name||m.society_id)}</div><div class="society-card-short">${esc(soc.short_name||'')}</div></div>`;
+  pending.forEach(m => {
+    const soc = allSocieties.find(s => s.id === m.society_id) || {};
+    html += `<div class="society-card pending"><span class="society-pending-badge">Pending approval</span>
+      <div class="society-card-name">${esc(soc.name || m.society_id)}</div>
+      <div class="society-card-short">${esc(soc.short_name || '')}</div></div>`;
   });
-  html+='</div>';
-  c.innerHTML=html;
+  html += '</div>';
+  c.innerHTML = html;
 }
 
 function renderStudentHistory() {
-  const socF=document.getElementById('history-filter-society').value;
-  const stF=document.getElementById('history-filter-status').value;
-  let subs=[...mySubmissions];
-  if(socF) subs=subs.filter(s=>s.routes&&s.routes.some(r=>r.society_id===socF));
-  if(stF)  subs=subs.filter(s=>s.routes&&s.routes.some(r=>r.status===stF&&(!socF||r.society_id===socF)));
-  const list=document.getElementById('student-history-list');
-  if(!subs.length){list.innerHTML='<div class="empty-state">No submissions found.</div>';return;}
-  list.innerHTML=subs.map(s=>{
-    const routes=socF?s.routes.filter(r=>r.society_id===socF):s.routes||[];
-    return`<div class="sub-row clickable" onclick="openSubDetail('${s.id}')">
-      <div style="flex:1"><div class="sub-event">${esc(s.event_name)}</div><div class="sub-meta">${fmtDate(s.event_date)} · ${s.hours}h · ${esc(s.sponsor)}</div>
-      <div class="sub-routes">${routes.map(r=>`<span class="badge badge-${r.status}">${esc(r.society_name)} — ${cap(r.status)}</span>`).join(' ')}</div></div>
+  const socF = document.getElementById('history-filter-society').value;
+  const stF  = document.getElementById('history-filter-status').value;
+  let subs   = [...mySubmissions];
+  if (socF) subs = subs.filter(s => s.routes && s.routes.some(r => r.society_id === socF));
+  if (stF)  subs = subs.filter(s => s.routes && s.routes.some(r => r.status === stF && (!socF || r.society_id === socF)));
+  const list = document.getElementById('student-history-list');
+  if (!subs.length) { list.innerHTML = '<div class="empty-state">No submissions found.</div>'; return; }
+  list.innerHTML = subs.map(s => {
+    const routes = socF ? s.routes.filter(r => r.society_id === socF) : s.routes || [];
+    return `<div class="sub-row clickable" onclick="openSubDetail('${s.id}')">
+      <div style="flex:1">
+        <div class="sub-event">${esc(s.event_name)}</div>
+        <div class="sub-meta">${fmtDate(s.event_date)} · ${s.hours}h · ${esc(s.sponsor)}</div>
+        <div class="sub-routes">${routes.map(r => `<span class="badge badge-${r.status}">${esc(r.society_name)} — ${cap(r.status)}</span>`).join(' ')}</div>
+      </div>
       <div class="sub-right"><span class="chevron">&#8250;</span></div></div>`;
   }).join('');
 }
 
 function openSubDetail(subId) {
-  const s=mySubmissions.find(x=>x.id===subId); if(!s) return;
-  document.getElementById('sub-detail-title').textContent=s.event_name;
-  document.getElementById('sub-detail-body').innerHTML=`
+  const s = mySubmissions.find(x => x.id === subId); if (!s) return;
+  document.getElementById('sub-detail-title').textContent = s.event_name;
+  document.getElementById('sub-detail-body').innerHTML = `
     <div class="detail-row"><span class="detail-label">Date</span><span class="detail-val">${fmtDate(s.event_date)}</span></div>
     <div class="detail-row"><span class="detail-label">Hours</span><span class="detail-val">${s.hours} hrs</span></div>
     <div class="detail-row"><span class="detail-label">Sponsor</span><span class="detail-val">${esc(s.sponsor)}</span></div>
-    <div class="detail-row"><span class="detail-label">Sponsored Event</span><span class="detail-val">${s.is_sponsored?'Yes':'No'}</span></div>
-    ${s.description?`<div class="detail-row"><span class="detail-label">Description</span><span class="detail-val">${esc(s.description)}</span></div>`:''}
+    <div class="detail-row"><span class="detail-label">Sponsored Event</span><span class="detail-val">${s.is_sponsored ? 'Yes' : 'No'}</span></div>
+    ${s.description ? `<div class="detail-row"><span class="detail-label">Description</span><span class="detail-val">${esc(s.description)}</span></div>` : ''}
     <div style="margin-top:16px"><div class="section-title">Society Status</div>
-    ${(s.routes||[]).map(r=>`<div class="sub-row"><div><div style="font-weight:500">${esc(r.society_name)}</div>
-    ${r.status==='rejected'&&r.rejection_comment?`<div style="font-size:12px;color:var(--danger);margin-top:3px">Note: ${esc(r.rejection_comment)}</div>`:''}</div>
+    ${(s.routes || []).map(r => `<div class="sub-row"><div><div style="font-weight:500">${esc(r.society_name)}</div>
+    ${r.status === 'rejected' && r.rejection_comment ? `<div style="font-size:12px;color:var(--danger);margin-top:3px">Note: ${esc(r.rejection_comment)}</div>` : ''}</div>
     <span class="badge badge-${r.status}">${cap(r.status)}</span></div>`).join('')}</div>
     <div class="sig-preview"><div class="sig-preview-label">Sponsor Signature</div>
-    ${s.signature_url?`<img src="${s.signature_url}" style="width:100%;height:100px;object-fit:contain;background:#fff"/>`:`<div style="padding:16px;text-align:center;color:var(--text-light);font-size:13px">No signature on file.</div>`}</div>`;
-  const submittedIds=(s.routes||[]).map(r=>r.society_id);
-  const canAdd=myMemberships.filter(m=>m.approved&&!submittedIds.includes(m.society_id));
-  document.getElementById('sub-detail-foot').innerHTML=canAdd.length
-    ?`<button class="btn-secondary" onclick="closeModal('sub-detail-modal')">Close</button><button class="btn-gold" onclick="openAddRoute('${s.id}')">Submit to More Societies</button>`
-    :`<button class="btn-secondary" onclick="closeModal('sub-detail-modal')">Close</button>`;
+    ${s.signature_url ? `<img src="${s.signature_url}" style="width:100%;height:100px;object-fit:contain;background:#fff"/>`
+      : `<div style="padding:16px;text-align:center;color:var(--text-light);font-size:13px">No signature on file.</div>`}</div>`;
+  const submittedIds = (s.routes || []).map(r => r.society_id);
+  const canAdd = myMemberships.filter(m => m.approved && !submittedIds.includes(m.society_id));
+  document.getElementById('sub-detail-foot').innerHTML = canAdd.length
+    ? `<button class="btn-secondary" onclick="closeModal('sub-detail-modal')">Close</button><button class="btn-gold" onclick="openAddRoute('${s.id}')">Submit to More Societies</button>`
+    : `<button class="btn-secondary" onclick="closeModal('sub-detail-modal')">Close</button>`;
   openModal('sub-detail-modal');
 }
 
 function openAddRoute(subId) {
-  addRouteSubId=subId;
-  const s=mySubmissions.find(x=>x.id===subId);
-  const submittedIds=(s.routes||[]).map(r=>r.society_id);
-  const available=myMemberships.filter(m=>m.approved&&!submittedIds.includes(m.society_id));
-  document.getElementById('add-route-societies').innerHTML=available.map(m=>{
-    const soc=allSocieties.find(x=>x.id===m.society_id)||{};
-    return`<label class="checkbox-item" onclick="this.classList.toggle('checked')"><input type="checkbox" value="${m.society_id}"/>${esc(soc.short_name||soc.name||m.society_id)}</label>`;
+  addRouteSubId = subId;
+  const s = mySubmissions.find(x => x.id === subId);
+  const submittedIds = (s.routes || []).map(r => r.society_id);
+  const available = myMemberships.filter(m => m.approved && !submittedIds.includes(m.society_id));
+  document.getElementById('add-route-societies').innerHTML = available.map(m => {
+    const soc = allSocieties.find(x => x.id === m.society_id) || {};
+    return `<label class="checkbox-item" onclick="this.classList.toggle('checked')">
+      <input type="checkbox" value="${m.society_id}"/>${esc(soc.short_name || soc.name || m.society_id)}</label>`;
   }).join('');
-  closeModal('sub-detail-modal'); openModal('add-route-modal');
+  closeModal('sub-detail-modal');
+  openModal('add-route-modal');
 }
 
 async function saveAddRoutes() {
-  const ids=getChecked('add-route-societies');
-  if(!ids.length){alert('Please select at least one society.');return;}
+  const ids = getChecked('add-route-societies');
+  if (!ids.length) { alert('Please select at least one society.'); return; }
   try {
-    await api('editSubmissionRoutes',{submissionId:addRouteSubId,addSocietyIds:ids});
-    mySubmissions=await api('getMySubmissions');
-    closeModal('add-route-modal'); renderStudentHistory();
-  } catch(err){alert(err.message);}
+    await api('editSubmissionRoutes', { submissionId: addRouteSubId, addSocietyIds: ids });
+    mySubmissions = await api('getMySubmissions');
+    closeModal('add-route-modal');
+    renderStudentHistory();
+  } catch (err) { alert(err.message); }
 }
 
 async function showAccountModal() {
-  buildSocietyCheckboxes('account-societies',myMemberships.map(m=>m.society_id));
-  hideEl('account-success'); openModal('account-modal');
+  buildSocietyCheckboxes('account-societies', myMemberships.map(m => m.society_id));
+  hideEl('account-success');
+  openModal('account-modal');
 }
 
 async function saveAccountSocieties() {
-  const selected=getChecked('account-societies');
-  const current=myMemberships.map(m=>m.society_id);
-  const toAdd=selected.filter(id=>!current.includes(id));
-  const toRemove=current.filter(id=>!selected.includes(id));
+  const selected = getChecked('account-societies');
+  const current  = myMemberships.map(m => m.society_id);
+  const toAdd    = selected.filter(id => !current.includes(id));
+  const toRemove = current.filter(id => !selected.includes(id));
   try {
-    await api('updateMemberships',{addSocietyIds:toAdd,removeSocietyIds:toRemove});
-    myMemberships=await api('getMyMemberships');
-    showEl('account-success','Societies updated successfully.');
+    await api('updateMemberships', { addSocietyIds: toAdd, removeSocietyIds: toRemove });
+    myMemberships = await api('getMyMemberships');
+    showEl('account-success', 'Societies updated successfully.');
     renderStudentDashboard();
-  } catch(err){alert(err.message);}
+  } catch (err) { alert(err.message); }
 }
 
-function showStudentTab(tab,el) {
-  document.querySelectorAll('#student-screen .sidebar-link').forEach(l=>l.classList.remove('active')); el.classList.add('active');
-  ['student-dashboard','student-submit','student-history'].forEach(id=>document.getElementById(id).style.display='none');
-  if(tab==='dashboard'){document.getElementById('student-dashboard').style.display='block';renderStudentDashboard();}
-  if(tab==='submit'){document.getElementById('student-submit').style.display='block';buildSubmitSocieties();initCanvas();}
-  if(tab==='history'){document.getElementById('student-history').style.display='block';buildHistoryFilters();renderStudentHistory();}
+function showStudentTab(tab, el) {
+  document.querySelectorAll('#student-screen .sidebar-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+  ['student-dashboard','student-submit','student-history'].forEach(id => document.getElementById(id).style.display = 'none');
+  if (tab === 'dashboard') { document.getElementById('student-dashboard').style.display = 'block'; renderStudentDashboard(); }
+  if (tab === 'submit')    { document.getElementById('student-submit').style.display    = 'block'; buildSubmitSocieties(); initCanvas(); }
+  if (tab === 'history')   { document.getElementById('student-history').style.display   = 'block'; buildHistoryFilters(); renderStudentHistory(); }
 }
 
 function buildSubmitSocieties() {
-  buildSocietyCheckboxes('submit-societies',[],myMemberships.filter(m=>m.approved).map(m=>m.society_id));
+  buildSocietyCheckboxes('submit-societies', [], myMemberships.filter(m => m.approved).map(m => m.society_id));
   updateSubmitFormForSettings();
 }
 
 function updateSubmitFormForSettings() {
-  const ids = getChecked('submit-societies');
-  const selected = allSocieties.filter(s => ids.includes(s.id));
-  const needsSig      = ids.length === 0 || selected.some(s => s.requires_signature !== false);
+  const ids          = getChecked('submit-societies');
+  const selected     = allSocieties.filter(s => ids.includes(s.id));
+  const needsSig     = ids.length === 0 || selected.some(s => s.requires_signature !== false);
   const needsSponsored = ids.length === 0 || selected.some(s => s.requires_sponsored !== false);
-  const sigField      = document.getElementById('sig-field');
-  const sponField     = document.getElementById('sponsored-field');
-  if (sigField)  sigField.style.display  = needsSig       ? '' : 'none';
+  const sigField     = document.getElementById('sig-field');
+  const sponField    = document.getElementById('sponsored-field');
+  if (sigField)  sigField.style.display  = needsSig      ? '' : 'none';
   if (sponField) sponField.style.display = needsSponsored ? '' : 'none';
 }
+
 function buildHistoryFilters() {
-  const sel=document.getElementById('history-filter-society');
-  const ids=myMemberships.filter(m=>m.approved).map(m=>m.society_id);
-  sel.innerHTML='<option value="">All societies</option>'+allSocieties.filter(s=>ids.includes(s.id)).map(s=>`<option value="${s.id}">${esc(s.short_name)}</option>`).join('');
+  const sel = document.getElementById('history-filter-society');
+  const ids = myMemberships.filter(m => m.approved).map(m => m.society_id);
+  sel.innerHTML = '<option value="">All societies</option>' +
+    allSocieties.filter(s => ids.includes(s.id)).map(s => `<option value="${s.id}">${esc(s.short_name)}</option>`).join('');
 }
 
-async function submitHours() {
-  const event_name=v('evt-name'),event_date=v('evt-date'),hours=parseFloat(v('evt-hours')),sponsor=v('evt-sponsor');
-  const description=v('evt-desc'),is_sponsored=document.getElementById('evt-sponsored').checked;
-  const society_ids=getChecked('submit-societies');
-  const _sel=allSocieties.filter(s=>society_ids.includes(s.id));
-  const _needsSig=_sel.length===0||_sel.some(s=>s.requires_signature!==false);
-  const _needsSpon=_sel.some(s=>s.requires_sponsored!==false);
+async function doSubmitHours() {
+  const event_name  = v('evt-name'), event_date = v('evt-date'),
+        hours       = parseFloat(v('evt-hours')), sponsor = v('evt-sponsor'),
+        description = v('evt-desc'),
+        is_sponsored = document.getElementById('evt-sponsored').checked,
+        society_ids  = getChecked('submit-societies');
+
+  const _sel      = allSocieties.filter(s => society_ids.includes(s.id));
+  const _needsSig = _sel.length === 0 || _sel.some(s => s.requires_signature !== false);
+
   hideEl('submit-error'); hideEl('submit-success');
-  if(!event_name||!event_date||!hours||!sponsor){showEl('submit-error','Please fill in all required fields.');return;}
-  if(!society_ids.length){showEl('submit-error','Please select at least one honor society.');return;}
-  if(_needsSig&&!sigData){showEl('submit-error','A sponsor signature is required by one or more selected societies.');return;}
-  setBtnLoading('submit-btn',true,'Submitting...');
+  if (!event_name || !event_date || !hours || !sponsor) { showEl('submit-error', 'Please fill in all required fields.'); return; }
+  if (!society_ids.length) { showEl('submit-error', 'Please select at least one honor society.'); return; }
+  if (_needsSig && !sigData) { showEl('submit-error', 'A sponsor signature is required by one or more selected societies.'); return; }
+
+  setBtnLoading('submit-btn', true, 'Submitting...');
   try {
-    const finalSponsored=_needsSpon?is_sponsored:false;
-    // Step 1: submit without signature
-    const res=await api('submitHours',{event_name,event_date,hours,sponsor,description,is_sponsored:finalSponsored,society_ids});
+    // Step 1: submit without signature (avoids URL-length limit on JSONP GET)
+    const res = await api('submitHours', { event_name, event_date, hours, sponsor, description, is_sponsored, society_ids });
+
     // Step 2: upload signature separately if needed
-    if(_needsSig&&sigData&&res.id){
-      const compressed=await compressSig(sigData);
-      await api('uploadSignature',{submissionId:res.id,signature_url:compressed});
+    if (_needsSig && sigData && res.id) {
+      const compressed = await compressSig(sigData);
+      // FIX: correct parameter name is signature_base64 (matches Code.gs uploadSignature)
+      await api('uploadSignature', { submissionId: res.id, signature_base64: compressed });
     }
-    showEl('submit-success','Submission received! The respective admins will review it.');
-    ['evt-name','evt-date','evt-hours','evt-sponsor','evt-desc'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('evt-sponsored').checked=false;
-    document.querySelectorAll('#submit-societies input').forEach(cb=>cb.checked=false);
-    document.querySelectorAll('#submit-societies .checkbox-item').forEach(el=>el.classList.remove('checked'));
+
+    showEl('submit-success', 'Submission received! The respective admins will review it.');
+    ['evt-name','evt-date','evt-hours','evt-sponsor','evt-desc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('evt-sponsored').checked = false;
+    document.querySelectorAll('#submit-societies input').forEach(cb => cb.checked = false);
+    document.querySelectorAll('#submit-societies .checkbox-item').forEach(el => el.classList.remove('checked'));
     clearSig();
-    const refreshed=await api('getStudentBootData');
-    mySubmissions=refreshed.submissions||[];
-    myMemberships=refreshed.memberships||[];
-  } catch(err){showEl('submit-error',err.message);}
-  setBtnLoading('submit-btn',false,'Submit for Approval');
+
+    const refreshed = await api('getStudentBootData');
+    mySubmissions   = refreshed.submissions || [];
+    myMemberships   = refreshed.memberships || [];
+    renderStudentDashboard();
+  } catch (err) { showEl('submit-error', err.message); }
+  setBtnLoading('submit-btn', false, 'Submit for Approval');
 }
 
-// ── CLUB ADMIN ──
+// ── CLUB ADMIN ───────────────────────────────────────────
 function buildCASocietySelect() {
-  const sel=document.getElementById('ca-society-select');
-  const socs=allSocieties.filter(s=>adminSocieties.includes(s.id));
-  sel.innerHTML=socs.map(s=>`<option value="${s.id}">${esc(s.short_name)}</option>`).join('');
-  currentCASociety=socs[0]?.id||null;
+  const sel  = document.getElementById('ca-society-select');
+  const socs = allSocieties.filter(s => adminSocieties.includes(s.id));
+  sel.innerHTML = socs.map(s => `<option value="${s.id}">${esc(s.short_name)}</option>`).join('');
+  currentCASociety = socs[0]?.id || null;
 }
+
 function openAddStudentModal() {
   document.getElementById('add-student-name').value = '';
   document.getElementById('add-student-user').value = '';
@@ -865,36 +938,50 @@ function openAddStudentModal() {
   hideEl('add-student-success');
   openModal('add-student-modal');
 }
+
+async function loadClubAdminData() {
+  currentCASociety = document.getElementById('ca-society-select').value || currentCASociety;
+  if (!currentCASociety) return;
+  const soc = allSocieties.find(s => s.id === currentCASociety) || {};
+  document.getElementById('ca-submissions-title').textContent = (soc.name || '') + ' — Submissions';
+  document.getElementById('ca-members-title').textContent     = (soc.name || '') + ' — Members';
+  try {
+    const data    = await api('getClubBootData', { societyId: currentCASociety });
+    caSubmissions = data.submissions || [];
+    caMembers     = data.members     || [];
+    renderCASubmissions(); renderCAMembers(); updateCAPendingBadge();
+    loadClubSettings();
+  } catch (err) { console.error('loadClubAdminData:', err); }
+}
+
 async function loadClubSettings() {
   try {
     const settings = await api('getClubSettings', { societyId: currentCASociety });
     const sigCb  = document.getElementById('setting-signature');
     const sponCb = document.getElementById('setting-sponsored');
-    document.getElementById('setting-hour-goal').value   = settings.hour_goal   || 10;
-document.getElementById('setting-goal-period').value = settings.goal_period  || 'year';
     if (sigCb)  sigCb.checked  = settings.requires_signature !== false;
     if (sponCb) sponCb.checked = settings.requires_sponsored !== false;
     const soc = allSocieties.find(s => s.id === currentCASociety) || {};
     document.getElementById('ca-settings-title').textContent = (soc.name || 'Club') + ' — Settings';
-  } catch(err) { console.error('loadClubSettings:', err); }
+  } catch (err) { console.error('loadClubSettings:', err); }
 }
 
 async function saveClubSettings() {
   const requires_signature = document.getElementById('setting-signature').checked;
   const requires_sponsored = document.getElementById('setting-sponsored').checked;
-  const hour_goal   = parseInt(document.getElementById('setting-hour-goal').value)  || 10;
-const goal_period = document.getElementById('setting-goal-period').value;
   hideEl('ca-settings-error'); hideEl('ca-settings-success');
   setBtnLoading('save-settings-btn', true, 'Saving...');
   try {
-await api('updateClubSettings', { societyId: currentCASociety, requires_signature, requires_sponsored, hour_goal, goal_period });    const soc = allSocieties.find(s => s.id === currentCASociety);
-if (soc) { soc.requires_signature = requires_signature; soc.requires_sponsored = requires_sponsored; soc.hour_goal = hour_goal; soc.goal_period = goal_period; }    showEl('ca-settings-success', 'Settings saved successfully.');
-  } catch(err) { showEl('ca-settings-error', err.message); }
+    await api('updateClubSettings', { societyId: currentCASociety, requires_signature, requires_sponsored });
+    const soc = allSocieties.find(s => s.id === currentCASociety);
+    if (soc) { soc.requires_signature = requires_signature; soc.requires_sponsored = requires_sponsored; }
+    showEl('ca-settings-success', 'Settings saved successfully.');
+  } catch (err) { showEl('ca-settings-error', err.message); }
   setBtnLoading('save-settings-btn', false, 'Save Settings');
 }
+
 async function doAddStudent() {
-  const fullName = v('add-student-name');
-  const username = v('add-student-user');
+  const fullName = v('add-student-name'), username = v('add-student-user');
   hideEl('add-student-error'); hideEl('add-student-success');
   if (!fullName || !username) { showEl('add-student-error', 'Please fill in both fields.'); return; }
   setBtnLoading('add-student-btn', true, 'Adding...');
@@ -903,287 +990,435 @@ async function doAddStudent() {
     showEl('add-student-success', `${res.fullName} has been added successfully.`);
     document.getElementById('add-student-name').value = '';
     document.getElementById('add-student-user').value = '';
-    // Refresh members list
     const data = await api('getClubBootData', { societyId: currentCASociety });
     caMembers = data.members || [];
     renderCAMembers(); updateCAPendingBadge();
-  } catch(err) { showEl('add-student-error', err.message); }
+  } catch (err) { showEl('add-student-error', err.message); }
   setBtnLoading('add-student-btn', false, 'Add Student');
 }
 
-async function loadClubAdminData() {
-  currentCASociety=document.getElementById('ca-society-select').value||currentCASociety;
-  if(!currentCASociety) return;
-  const soc=allSocieties.find(s=>s.id===currentCASociety)||{};
-  document.getElementById('ca-submissions-title').textContent=soc.name+' — Submissions';
-  document.getElementById('ca-members-title').textContent=soc.name+' — Members';
-  try {
-    const data = await api('getClubBootData',{societyId:currentCASociety});
-    caSubmissions = data.submissions || [];
-    caMembers     = data.members     || [];
-    renderCASubmissions(); renderCAMembers(); updateCAPendingBadge(); loadClubSettings();
-  } catch(err){console.error(err);}
-}
-
 function renderCASubmissions() {
-  const q=(v('ca-sub-search')||'').toLowerCase(), status=v('ca-sub-status');
-  const list=caSubmissions.filter(s=>(!q||s.event_name.toLowerCase().includes(q)||s.student_name.toLowerCase().includes(q))&&(!status||s.status===status));
-  const tbody=document.getElementById('ca-submissions-tbody');
-  if(!list.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No submissions found.</td></tr>';return;}
-  tbody.innerHTML=list.map(s=>`<tr>
+  const q = (v('ca-sub-search') || '').toLowerCase(), status = v('ca-sub-status');
+  const list = caSubmissions.filter(s =>
+    (!q || s.event_name.toLowerCase().includes(q) || s.student_name.toLowerCase().includes(q)) &&
+    (!status || s.status === status)
+  );
+  const tbody = document.getElementById('ca-submissions-tbody');
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No submissions found.</td></tr>'; return; }
+  tbody.innerHTML = list.map(s => `<tr>
     <td><div style="font-weight:500">${esc(s.student_name)}</div></td>
     <td>${esc(s.event_name)}</td><td>${fmtDate(s.event_date)}</td><td>${s.hours}h</td>
     <td><span class="badge badge-${s.status}">${cap(s.status)}</span></td>
     <td><div class="admin-actions">
       <button class="btn-secondary" style="padding:4px 10px;font-size:12px" onclick="openCASubDetail('${s.route_id}')">View</button>
-      ${s.status==='pending'?`<button class="btn-gold" style="padding:4px 10px;font-size:12px" onclick="setRouteStatus('${s.route_id}','approved')">Approve</button>
-      <button class="btn-danger" style="padding:4px 10px;font-size:12px" onclick="openRejectModal('${s.route_id}','${currentCASociety}')">Reject</button>`:''}
+      ${s.status === 'pending' ? `
+        <button class="btn-gold"   style="padding:4px 10px;font-size:12px" onclick="setRouteStatus('${s.route_id}','approved')">Approve</button>
+        <button class="btn-danger" style="padding:4px 10px;font-size:12px" onclick="openRejectModal('${s.route_id}','${currentCASociety}')">Reject</button>` : ''}
     </div></td></tr>`).join('');
 }
 
 function openCASubDetail(routeId) {
-  const s=caSubmissions.find(x=>x.route_id===routeId); if(!s) return;
-  document.getElementById('ca-sub-title').textContent=s.event_name;
-  document.getElementById('ca-sub-body').innerHTML=`
+  const s = caSubmissions.find(x => x.route_id === routeId); if (!s) return;
+  document.getElementById('ca-sub-title').textContent = s.event_name;
+  document.getElementById('ca-sub-body').innerHTML = `
     <div class="detail-row"><span class="detail-label">Student</span><span class="detail-val">${esc(s.student_name)}</span></div>
     <div class="detail-row"><span class="detail-label">Date</span><span class="detail-val">${fmtDate(s.event_date)}</span></div>
     <div class="detail-row"><span class="detail-label">Hours</span><span class="detail-val">${s.hours} hrs</span></div>
     <div class="detail-row"><span class="detail-label">Sponsor</span><span class="detail-val">${esc(s.sponsor)}</span></div>
     <div class="detail-row"><span class="detail-label">Status</span><span class="detail-val"><span class="badge badge-${s.status}">${cap(s.status)}</span></span></div>
-    <div class="detail-row"><span class="detail-label">Sponsored</span><span class="detail-val">${s.is_sponsored?'Yes':'No'}</span></div>
-    ${s.description?`<div class="detail-row"><span class="detail-label">Description</span><span class="detail-val">${esc(s.description)}</span></div>`:''}
-    ${s.rejection_comment?`<div class="detail-row"><span class="detail-label">Rejection Note</span><span class="detail-val" style="color:var(--danger)">${esc(s.rejection_comment)}</span></div>`:''}
+    <div class="detail-row"><span class="detail-label">Sponsored</span><span class="detail-val">${s.is_sponsored ? 'Yes' : 'No'}</span></div>
+    ${s.description ? `<div class="detail-row"><span class="detail-label">Description</span><span class="detail-val">${esc(s.description)}</span></div>` : ''}
+    ${s.rejection_comment ? `<div class="detail-row"><span class="detail-label">Rejection Note</span><span class="detail-val" style="color:var(--danger)">${esc(s.rejection_comment)}</span></div>` : ''}
     <div class="sig-preview"><div class="sig-preview-label">Sponsor Signature</div>
-    ${s.signature_url?`<img src="${s.signature_url}" style="width:100%;height:100px;object-fit:contain;background:#fff"/>`:`<div style="padding:16px;text-align:center;color:var(--text-light);font-size:13px">No signature on file.</div>`}</div>`;
-  document.getElementById('ca-sub-foot').innerHTML=s.status==='pending'
-    ?`<button class="btn-danger" onclick="openRejectModal('${s.route_id}','${currentCASociety}');closeModal('ca-sub-modal')">Reject</button>
-      <button class="btn-gold" onclick="setRouteStatus('${s.route_id}','approved');closeModal('ca-sub-modal')">Approve</button>`
-    :`<button class="btn-secondary" onclick="closeModal('ca-sub-modal')">Close</button>`;
+    ${s.signature_url ? `<img src="${s.signature_url}" style="width:100%;height:100px;object-fit:contain;background:#fff"/>`
+      : `<div style="padding:16px;text-align:center;color:var(--text-light);font-size:13px">No signature on file.</div>`}</div>`;
+  document.getElementById('ca-sub-foot').innerHTML = s.status === 'pending'
+    ? `<button class="btn-danger" onclick="openRejectModal('${s.route_id}','${currentCASociety}');closeModal('ca-sub-modal')">Reject</button>
+       <button class="btn-gold"   onclick="setRouteStatus('${s.route_id}','approved');closeModal('ca-sub-modal')">Approve</button>`
+    : `<button class="btn-secondary" onclick="closeModal('ca-sub-modal')">Close</button>`;
   openModal('ca-sub-modal');
 }
 
-async function setRouteStatus(routeId,status,rejComment) {
+async function setRouteStatus(routeId, status, rejComment) {
   try {
-    await api('setRouteStatus',{routeId,societyId:currentCASociety,status,rejection_comment:rejComment||''});
-    const s=caSubmissions.find(x=>x.route_id===routeId);
-    if(s){s.status=status;if(rejComment!==undefined)s.rejection_comment=rejComment;}
+    await api('setRouteStatus', { routeId, societyId: currentCASociety, status, rejection_comment: rejComment || '' });
+    const s = caSubmissions.find(x => x.route_id === routeId);
+    if (s) { s.status = status; if (rejComment !== undefined) s.rejection_comment = rejComment; }
     renderCASubmissions();
-  } catch(err){alert(err.message);}
+  } catch (err) { alert(err.message); }
 }
 
 function renderCAMembers() {
-  const list=document.getElementById('ca-members-list');
-  if(!caMembers.length){list.innerHTML='<div class="empty-state">No members found.</div>';return;}
-  const approved=caMembers.filter(m=>m.approved), pending=caMembers.filter(m=>!m.approved);
-  let html='';
-  if(pending.length){
-    html+=`<div class="section-title" style="margin-bottom:10px">Pending Requests (${pending.length})</div>`;
-    html+=pending.map(m=>`<div class="sub-row"><div><div style="font-weight:500">${esc(m.full_name)}</div><div style="font-size:12px;color:var(--text-muted)">@${esc(m.username)} · ${esc(m.grade)}</div></div>
-      <div class="sub-right"><button class="btn-gold" style="padding:5px 12px" onclick="approveCAMembership('${m.membership_id}')">Approve</button>
-      <button class="btn-danger" style="padding:5px 12px" onclick="denyCAMembership('${m.membership_id}')">Deny</button></div></div>`).join('');
-    html+='<div style="margin:16px 0;border-top:0.5px solid var(--border)"></div>';
+  const list = document.getElementById('ca-members-list');
+  if (!caMembers.length) { list.innerHTML = '<div class="empty-state">No members found.</div>'; return; }
+  const approved = caMembers.filter(m =>  m.approved);
+  const pending  = caMembers.filter(m => !m.approved);
+  let html = '';
+  if (pending.length) {
+    html += `<div class="section-title" style="margin-bottom:10px">Pending Requests (${pending.length})</div>`;
+    html += pending.map(m => `<div class="sub-row">
+      <div><div style="font-weight:500">${esc(m.full_name)}</div><div style="font-size:12px;color:var(--text-muted)">@${esc(m.username)} · ${esc(m.grade)}</div></div>
+      <div class="sub-right">
+        <button class="btn-gold"   style="padding:5px 12px" onclick="approveCAMembership('${m.membership_id}')">Approve</button>
+        <button class="btn-danger" style="padding:5px 12px" onclick="denyCAMembership('${m.membership_id}')">Deny</button>
+      </div></div>`).join('');
+    html += '<div style="margin:16px 0;border-top:0.5px solid var(--border)"></div>';
   }
-  if(approved.length){
-    html+=`<div class="section-title" style="margin-bottom:10px">Approved Members (${approved.length})</div>`;
-    html+=approved.map(m=>`<div class="sub-row"><div><div style="font-weight:500">${esc(m.full_name)}</div><div style="font-size:12px;color:var(--text-muted)">@${esc(m.username)} · ${esc(m.grade)}</div></div>
+  if (approved.length) {
+    html += `<div class="section-title" style="margin-bottom:10px">Approved Members (${approved.length})</div>`;
+    html += approved.map(m => `<div class="sub-row">
+      <div><div style="font-weight:500">${esc(m.full_name)}</div><div style="font-size:12px;color:var(--text-muted)">@${esc(m.username)} · ${esc(m.grade)}</div></div>
       <span class="badge badge-approved">Member</span></div>`).join('');
   }
-  list.innerHTML=html;
+  list.innerHTML = html;
 }
 
 async function approveCAMembership(membershipId) {
-  try { await api('approveClubMembership',{membershipId,societyId:currentCASociety}); const m=caMembers.find(x=>x.membership_id===membershipId); if(m) m.approved=true; renderCAMembers(); updateCAPendingBadge(); } catch(err){alert(err.message);}
+  try {
+    await api('approveClubMembership', { membershipId, societyId: currentCASociety });
+    const m = caMembers.find(x => x.membership_id === membershipId);
+    if (m) m.approved = true;
+    renderCAMembers(); updateCAPendingBadge();
+  } catch (err) { alert(err.message); }
 }
+
 async function denyCAMembership(membershipId) {
-  try { await api('denyClubMembership',{membershipId,societyId:currentCASociety}); caMembers=caMembers.filter(x=>x.membership_id!==membershipId); renderCAMembers(); updateCAPendingBadge(); } catch(err){alert(err.message);}
-}
-function updateCAPendingBadge(){const count=caMembers.filter(m=>!m.approved).length;const b=document.getElementById('ca-pending-badge');b.textContent=count||'';b.style.display=count?'inline':'none';}
-
-function showClubAdminTab(tab,el){
-  document.querySelectorAll('#clubadmin-screen .sidebar-link').forEach(l=>l.classList.remove('active')); el.classList.add('active');
-  ['ca-submissions','ca-members','ca-settings'].forEach(id=>document.getElementById(id).style.display='none');
-  document.getElementById(tab).style.display='block';
+  try {
+    await api('denyClubMembership', { membershipId, societyId: currentCASociety });
+    caMembers = caMembers.filter(x => x.membership_id !== membershipId);
+    renderCAMembers(); updateCAPendingBadge();
+  } catch (err) { alert(err.message); }
 }
 
-// ── SUPER ADMIN ──
+function updateCAPendingBadge() {
+  const count = caMembers.filter(m => !m.approved).length;
+  const b = document.getElementById('ca-pending-badge');
+  b.textContent = count || ''; b.style.display = count ? 'inline' : 'none';
+}
+
+function showClubAdminTab(tab, el) {
+  document.querySelectorAll('#clubadmin-screen .sidebar-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+  ['ca-submissions','ca-members','ca-settings'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById(tab).style.display = 'block';
+}
+
+// ── SUPER ADMIN ──────────────────────────────────────────
 async function loadSAData() {
   try {
-    const data = await api('getAdminBootData');
+    const data    = await api('getAdminBootData');
     saProfiles    = data.profiles    || [];
     saSubmissions = data.submissions || [];
     saRoles       = data.roles       || [];
     if (data.societies && data.societies.length) allSocieties = data.societies;
     renderSAStudents(); renderSASubmissions(); renderSARoles(); renderSAPending();
-    buildSASocietyFilter(); updateSAPendingBadge(); populateRoleSelects(); loadResetRequests();  } catch(err){console.error(err);}
+    buildSASocietyFilter(); updateSAPendingBadge(); populateRoleSelects();
+    loadResetRequests();
+  } catch (err) { console.error('loadSAData:', err); }
 }
 
-function showSATab(tab,el){
-  document.querySelectorAll('#superadmin-screen .sidebar-link').forEach(l=>l.classList.remove('active')); el.classList.add('active');
-  ['sa-students','sa-submissions','sa-roles','sa-pending','sa-resets'].forEach(id=>document.getElementById(id).style.display='none');  document.getElementById(tab).style.display='block';
+function showSATab(tab, el) {
+  document.querySelectorAll('#superadmin-screen .sidebar-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+  ['sa-students','sa-submissions','sa-roles','sa-pending','sa-resets'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById(tab).style.display = 'block';
 }
 
-function renderSAStudents(){
-  const q=(v('sa-student-search')||'').toLowerCase(), grade=v('sa-grade-filter');
-  const list=saProfiles.filter(p=>p.approved).filter(p=>(!q||p.full_name.toLowerCase().includes(q)||p.username.toLowerCase().includes(q))&&(!grade||p.grade===grade));
-  const tbody=document.getElementById('sa-students-tbody');
-  if(!list.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text-muted)">No students found.</td></tr>';return;}
-  tbody.innerHTML=list.map(p=>{
-    const roles=saRoles.filter(r=>r.user_id===p.id);
-    return`<tr><td><div style="font-weight:500;color:var(--black)">${esc(p.full_name)}</div><div style="font-size:12px;color:var(--text-muted)">@${esc(p.username)}</div></td>
-    <td>${esc(p.grade)}</td>
-    <td>${roles.map(r=>`<span class="role-tag">${esc(r.society_name)}</span>`).join('')||'<span style="color:var(--text-light);font-size:12px">Student</span>'}</td>
-    <td><button class="btn-secondary" style="padding:5px 12px;font-size:12px" onclick="openSAStudentModal('${p.id}')">View</button></td></tr>`;
+function renderSAStudents() {
+  const q     = (v('sa-student-search') || '').toLowerCase();
+  const grade = v('sa-grade-filter');
+  const list  = saProfiles.filter(p => p.approved).filter(p =>
+    (!q     || p.full_name.toLowerCase().includes(q) || p.username.toLowerCase().includes(q)) &&
+    (!grade || p.grade === grade)
+  );
+  const tbody = document.getElementById('sa-students-tbody');
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text-muted)">No students found.</td></tr>'; return; }
+  tbody.innerHTML = list.map(p => {
+    const roles = saRoles.filter(r => r.user_id === p.id);
+    return `<tr>
+      <td><div style="font-weight:500;color:var(--black)">${esc(p.full_name)}</div><div style="font-size:12px;color:var(--text-muted)">@${esc(p.username)}</div></td>
+      <td>${esc(p.grade)}</td>
+      <td>${roles.map(r => `<span class="role-tag">${esc(r.society_name)}</span>`).join('') || '<span style="color:var(--text-light);font-size:12px">Student</span>'}</td>
+      <td><button class="btn-secondary" style="padding:5px 12px;font-size:12px" onclick="openSAStudentModal('${p.id}')">View</button></td></tr>`;
   }).join('');
 }
 
-function openSAStudentModal(userId){
-  const p=saProfiles.find(x=>x.id===userId);
-  const roles=saRoles.filter(r=>r.user_id===userId);
-  const subs=saSubmissions.filter(s=>s.user_id===userId);
-  document.getElementById('sa-student-title').textContent=p.full_name;
-  document.getElementById('sa-student-body').innerHTML=`
+function openSAStudentModal(userId) {
+  const p     = saProfiles.find(x => x.id === userId);
+  if (!p) return;
+  const roles = saRoles.filter(r => r.user_id === userId);
+  const subs  = saSubmissions.filter(s => s.user_id === userId);
+  document.getElementById('sa-student-title').textContent = p.full_name;
+  document.getElementById('sa-student-body').innerHTML = `
     <div class="detail-row"><span class="detail-label">Username</span><span class="detail-val">@${esc(p.username)}</span></div>
     <div class="detail-row"><span class="detail-label">Grade</span><span class="detail-val">${esc(p.grade)}</span></div>
     <div class="detail-row"><span class="detail-label">Total Submissions</span><span class="detail-val">${subs.length}</span></div>
     <div style="margin-top:16px"><div class="section-title">Club Admin Roles</div>
-    ${roles.length?roles.map(r=>`<div class="sub-row"><span>${esc(r.society_name)}</span>
-    <button class="btn-danger" style="padding:4px 10px;font-size:12px" onclick="removeRole('${userId}','${r.society_id}')">Remove</button></div>`).join('')
-    :'<div style="font-size:13px;color:var(--text-muted);padding:8px 0">No admin roles.</div>'}</div>`;
-  document.getElementById('sa-student-foot').innerHTML=`
+    ${roles.length
+      ? roles.map(r => `<div class="sub-row"><span>${esc(r.society_name)}</span>
+        <button class="btn-danger" style="padding:4px 10px;font-size:12px" onclick="removeRole('${userId}','${r.society_id}')">Remove</button></div>`).join('')
+      : '<div style="font-size:13px;color:var(--text-muted);padding:8px 0">No admin roles.</div>'}</div>`;
+  document.getElementById('sa-student-foot').innerHTML = `
     <button class="btn-danger" style="margin-right:auto" onclick="removeMember('${userId}')">Remove Member</button>
     <button class="btn-secondary" onclick="closeModal('sa-student-modal')">Close</button>`;
   openModal('sa-student-modal');
 }
 
-function renderSASubmissions(){
-  const q=(v('sa-sub-search')||'').toLowerCase(), socId=v('sa-sub-society'), status=v('sa-sub-status');
-  let list=saSubmissions.filter(s=>{
-    const mq=!q||s.event_name.toLowerCase().includes(q)||(s.student_name||'').toLowerCase().includes(q);
-    const ms=!socId||(s.routes||[]).some(r=>r.society_id===socId);
-    const mst=!status||(s.routes||[]).some(r=>r.status===status&&(!socId||r.society_id===socId));
-    return mq&&ms&&mst;
+function renderSASubmissions() {
+  const q = (v('sa-sub-search') || '').toLowerCase(), socId = v('sa-sub-society'), status = v('sa-sub-status');
+  const list = saSubmissions.filter(s => {
+    const mq  = !q     || s.event_name.toLowerCase().includes(q) || (s.student_name || '').toLowerCase().includes(q);
+    const ms  = !socId || (s.routes || []).some(r => r.society_id === socId);
+    const mst = !status || (s.routes || []).some(r => r.status === status && (!socId || r.society_id === socId));
+    return mq && ms && mst;
   });
-  const tbody=document.getElementById('sa-submissions-tbody');
-  if(!list.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">No submissions found.</td></tr>';return;}
-  tbody.innerHTML=list.map(s=>`<tr>
-    <td>${esc(s.student_name||'—')}</td><td>${esc(s.event_name)}</td><td>${fmtDate(s.event_date)}</td><td>${s.hours}h</td>
-    <td>${(s.routes||[]).map(r=>`<span class="badge badge-${r.status}" style="margin-right:3px;margin-bottom:3px">${esc(r.society_name)}</span>`).join('')}</td></tr>`).join('');
+  const tbody = document.getElementById('sa-submissions-tbody');
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">No submissions found.</td></tr>'; return; }
+  tbody.innerHTML = list.map(s => `<tr>
+    <td>${esc(s.student_name || '—')}</td><td>${esc(s.event_name)}</td>
+    <td>${fmtDate(s.event_date)}</td><td>${s.hours}h</td>
+    <td>${(s.routes || []).map(r => `<span class="badge badge-${r.status}" style="margin-right:3px;margin-bottom:3px">${esc(r.society_name)}</span>`).join('')}</td></tr>`).join('');
 }
 
-function buildSASocietyFilter(){
-  const sel=document.getElementById('sa-sub-society');
-  sel.innerHTML='<option value="">All societies</option>'+allSocieties.map(s=>`<option value="${s.id}">${esc(s.short_name)}</option>`).join('');
+function buildSASocietyFilter() {
+  const sel = document.getElementById('sa-sub-society');
+  sel.innerHTML = '<option value="">All societies</option>' +
+    allSocieties.map(s => `<option value="${s.id}">${esc(s.short_name)}</option>`).join('');
 }
 
-function renderSARoles(){
-  const list=document.getElementById('sa-roles-list');
-  if(!saRoles.length){list.innerHTML='<div class="empty-state">No admin roles assigned yet.</div>';return;}
-  list.innerHTML=saRoles.map(r=>`<div class="sub-row"><div><div style="font-weight:500">${esc(r.full_name)}</div>
+function renderSARoles() {
+  const list = document.getElementById('sa-roles-list');
+  if (!saRoles.length) { list.innerHTML = '<div class="empty-state">No admin roles assigned yet.</div>'; return; }
+  list.innerHTML = saRoles.map(r => `<div class="sub-row">
+    <div><div style="font-weight:500">${esc(r.full_name)}</div>
     <div style="font-size:12px;color:var(--text-muted)">@${esc(r.username)} — ${esc(r.society_name)}</div></div>
     <button class="btn-danger" style="padding:5px 12px;font-size:12px" onclick="removeRole('${r.user_id}','${r.society_id}')">Remove</button></div>`).join('');
 }
 
-function renderSAPending(){
-  const pending=saProfiles.filter(p=>!p.approved);
-  const list=document.getElementById('sa-pending-list');
-  if(!pending.length){list.innerHTML='<div class="empty-state">No pending account requests.</div>';return;}
-  list.innerHTML=pending.map(p=>`<div class="sub-row"><div><div style="font-weight:500">${esc(p.full_name)}</div>
+function renderSAPending() {
+  const pending = saProfiles.filter(p => !p.approved);
+  const list    = document.getElementById('sa-pending-list');
+  if (!pending.length) { list.innerHTML = '<div class="empty-state">No pending account requests.</div>'; return; }
+  list.innerHTML = pending.map(p => `<div class="sub-row">
+    <div><div style="font-weight:500">${esc(p.full_name)}</div>
     <div style="font-size:12px;color:var(--text-muted)">@${esc(p.username)} · ${esc(p.grade)}</div></div>
-    <div class="sub-right"><button class="btn-gold" style="padding:5px 12px" onclick="approveAccount('${p.id}')">Approve</button>
-    <button class="btn-danger" style="padding:5px 12px" onclick="denyAccount('${p.id}')">Deny</button></div></div>`).join('');
+    <div class="sub-right">
+      <button class="btn-gold"   style="padding:5px 12px" onclick="approveAccount('${p.id}')">Approve</button>
+      <button class="btn-danger" style="padding:5px 12px" onclick="denyAccount('${p.id}')">Deny</button>
+    </div></div>`).join('');
 }
 
-function updateSAPendingBadge(){const count=saProfiles.filter(p=>!p.approved).length;const b=document.getElementById('sa-pending-badge');b.textContent=count||'';b.style.display=count?'inline':'none';}
-
-async function approveAccount(userId){try{await api('approveAccount',{userId});const p=saProfiles.find(x=>x.id===userId);if(p)p.approved=true;renderSAPending();renderSAStudents();updateSAPendingBadge();}catch(err){alert(err.message);}}
-async function denyAccount(userId){try{await api('denyAccount',{userId});saProfiles=saProfiles.filter(x=>x.id!==userId);renderSAPending();updateSAPendingBadge();}catch(err){alert(err.message);}}
-async function removeMember(userId){
-  if(!confirm('Remove this member and all their data? This cannot be undone.')) return;
-  try{await api('removeMember',{userId});saProfiles=saProfiles.filter(x=>x.id!==userId);saSubmissions=saSubmissions.filter(x=>x.user_id!==userId);saRoles=saRoles.filter(x=>x.user_id!==userId);closeModal('sa-student-modal');renderSAStudents();renderSASubmissions();renderSARoles();}catch(err){alert(err.message);}
+function updateSAPendingBadge() {
+  const count = saProfiles.filter(p => !p.approved).length;
+  const b = document.getElementById('sa-pending-badge');
+  b.textContent = count || ''; b.style.display = count ? 'inline' : 'none';
 }
 
-function populateRoleSelects(){
-  document.getElementById('role-user-select').innerHTML='<option value="">Select student...</option>'+saProfiles.filter(p=>p.approved).map(p=>`<option value="${p.id}">${esc(p.full_name)} (@${esc(p.username)})</option>`).join('');
-  document.getElementById('role-society-select').innerHTML='<option value="">Select society...</option>'+allSocieties.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+async function loadResetRequests() {
+  try {
+    const requests = await api('getResetRequests');
+    renderResetRequests(requests);
+    const b = document.getElementById('sa-resets-badge');
+    b.textContent = requests.length || ''; b.style.display = requests.length ? 'inline' : 'none';
+  } catch (err) { console.error('loadResetRequests:', err); }
 }
 
-async function assignRole(){
-  const userId=v('role-user-select'),societyId=v('role-society-select');
-  if(!userId||!societyId){alert('Please select a student and a society.');return;}
-  try{await api('setAdminRole',{userId,societyId});saRoles=await api('getAllRoles');renderSARoles();renderSAStudents();closeModal('assign-role-modal');}catch(err){alert(err.message);}
+function renderResetRequests(requests) {
+  const list = document.getElementById('sa-resets-list');
+  if (!requests.length) { list.innerHTML = '<div class="empty-state">No pending reset requests.</div>'; return; }
+  list.innerHTML = requests.map(r => `<div class="sub-row">
+    <div><div style="font-weight:500">${esc(r.full_name)}</div>
+    <div style="font-size:12px;color:var(--text-muted)">@${esc(r.username)} · Requested ${fmtDate(String(r.requested_at).split('T')[0])}</div></div>
+    <button class="btn-gold" style="padding:5px 12px;font-size:12px" onclick="openResetPasswordModal('${r.user_id}','${r.username}')">Reset Password</button>
+  </div>`).join('');
 }
 
-async function removeRole(userId,societyId){
-  try{await api('removeAdminRole',{userId,societyId});saRoles=saRoles.filter(r=>!(r.user_id===userId&&r.society_id===societyId));renderSARoles();renderSAStudents();closeModal('sa-student-modal');}catch(err){alert(err.message);}
+function openResetPasswordModal(userId, username) {
+  const newPass = prompt(`Set a new temporary password for @${username} (min 8 characters):`);
+  if (!newPass) return;
+  if (newPass.length < 8) { alert('Password must be at least 8 characters.'); return; }
+  api('resetUserPassword', { userId, newPassword: newPass })
+    .then(() => { alert(`Password reset. Tell ${username} their new password is: ${newPass}`); loadResetRequests(); })
+    .catch(err => alert(err.message));
 }
 
-function exportCSV(){
-  const approved=saProfiles.filter(p=>p.approved);
-  let csv='Name,Username,Grade,Society,Approved Hours,Pending Hours\n';
-  approved.forEach(p=>{
-    const pSubs=saSubmissions.filter(s=>s.user_id===p.id);
-    allSocieties.forEach(soc=>{
-      const appHrs=pSubs.reduce((a,s)=>{const r=(s.routes||[]).find(r=>r.society_id===soc.id);return a+(r&&r.status==='approved'?s.hours:0);},0);
-      const penHrs=pSubs.reduce((a,s)=>{const r=(s.routes||[]).find(r=>r.society_id===soc.id);return a+(r&&r.status==='pending'?s.hours:0);},0);
-      if(appHrs>0||penHrs>0) csv+=`"${p.full_name}","${p.username}","${p.grade}","${soc.name}",${appHrs},${penHrs}\n`;
+async function approveAccount(userId) {
+  try {
+    await api('approveAccount', { userId });
+    const p = saProfiles.find(x => x.id === userId);
+    if (p) p.approved = true;
+    renderSAPending(); renderSAStudents(); updateSAPendingBadge();
+  } catch (err) { alert(err.message); }
+}
+
+async function denyAccount(userId) {
+  try {
+    await api('denyAccount', { userId });
+    saProfiles = saProfiles.filter(x => x.id !== userId);
+    renderSAPending(); updateSAPendingBadge();
+  } catch (err) { alert(err.message); }
+}
+
+async function removeMember(userId) {
+  if (!confirm('Remove this member and all their data? This cannot be undone.')) return;
+  try {
+    await api('removeMember', { userId });
+    saProfiles    = saProfiles.filter(x => x.id !== userId);
+    saSubmissions = saSubmissions.filter(x => x.user_id !== userId);
+    saRoles       = saRoles.filter(x => x.user_id !== userId);
+    closeModal('sa-student-modal');
+    renderSAStudents(); renderSASubmissions(); renderSARoles();
+  } catch (err) { alert(err.message); }
+}
+
+function populateRoleSelects() {
+  document.getElementById('role-user-select').innerHTML =
+    '<option value="">Select student...</option>' +
+    saProfiles.filter(p => p.approved).map(p => `<option value="${p.id}">${esc(p.full_name)} (@${esc(p.username)})</option>`).join('');
+  document.getElementById('role-society-select').innerHTML =
+    '<option value="">Select society...</option>' +
+    allSocieties.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+}
+
+async function assignRole() {
+  const userId = v('role-user-select'), societyId = v('role-society-select');
+  if (!userId || !societyId) { alert('Please select a student and a society.'); return; }
+  try {
+    await api('setAdminRole', { userId, societyId });
+    saRoles = await api('getAllRoles');
+    renderSARoles(); renderSAStudents();
+    closeModal('assign-role-modal');
+  } catch (err) { alert(err.message); }
+}
+
+async function removeRole(userId, societyId) {
+  try {
+    await api('removeAdminRole', { userId, societyId });
+    saRoles = saRoles.filter(r => !(r.user_id === userId && r.society_id === societyId));
+    renderSARoles(); renderSAStudents();
+    closeModal('sa-student-modal');
+  } catch (err) { alert(err.message); }
+}
+
+function exportCSV() {
+  const approved = saProfiles.filter(p => p.approved);
+  let csv = 'Name,Username,Grade,Society,Approved Hours,Pending Hours\n';
+  approved.forEach(p => {
+    const pSubs = saSubmissions.filter(s => s.user_id === p.id);
+    allSocieties.forEach(soc => {
+      const appHrs = pSubs.reduce((a, s) => { const r = (s.routes || []).find(r => r.society_id === soc.id); return a + (r && r.status === 'approved' ? s.hours : 0); }, 0);
+      const penHrs = pSubs.reduce((a, s) => { const r = (s.routes || []).find(r => r.society_id === soc.id); return a + (r && r.status === 'pending'  ? s.hours : 0); }, 0);
+      if (appHrs > 0 || penHrs > 0)
+        csv += `"${p.full_name}","${p.username}","${p.grade}","${soc.name}",${appHrs},${penHrs}\n`;
     });
   });
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='Thane_export.csv';a.click();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = 'Thane_export.csv';
+  a.click();
 }
 
-// ── REJECT MODAL ──
-function openRejectModal(routeId,societyId){rejectCtx={routeId,societyId};document.getElementById('rejection-comment').value='';openModal('reject-modal');}
-async function confirmReject(){
-  const comment=document.getElementById('rejection-comment').value.trim();
-  try{await api('setRouteStatus',{routeId:rejectCtx.routeId,societyId:rejectCtx.societyId,status:'rejected',rejection_comment:comment});
-  const s=caSubmissions.find(x=>x.route_id===rejectCtx.routeId);if(s){s.status='rejected';s.rejection_comment=comment;}closeModal('reject-modal');renderCASubmissions();}catch(err){alert(err.message);}
+// ── REJECT MODAL ─────────────────────────────────────────
+function openRejectModal(routeId, societyId) {
+  rejectCtx = { routeId, societyId };
+  document.getElementById('rejection-comment').value = '';
+  openModal('reject-modal');
 }
 
-// ── SIGNATURE ──
-function compressSig(dataUrl){return new Promise(resolve=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=300;c.height=90;const ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,300,90);ctx.drawImage(img,0,0,300,90);resolve(c.toDataURL('image/jpeg',0.3));};img.src=dataUrl;});}function initCanvas(){const c=document.getElementById('sigCanvas'),ctx=c.getContext('2d');c.width=c.offsetWidth*devicePixelRatio;c.height=c.offsetHeight*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio);ctx.strokeStyle='#111111';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';const pos=e=>{const r=c.getBoundingClientRect(),s=e.touches?e.touches[0]:e;return{x:s.clientX-r.left,y:s.clientY-r.top};};c.onmousedown=c.ontouchstart=e=>{e.preventDefault();isDrawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);};c.onmousemove=c.ontouchmove=e=>{e.preventDefault();if(!isDrawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();};c.onmouseup=c.ontouchend=()=>{isDrawing=false;sigData=c.toDataURL();};}
-function clearSig(){const c=document.getElementById('sigCanvas');c.getContext('2d').clearRect(0,0,c.width,c.height);sigData=null;}
-
-// ── HELPERS ──
-function buildSocietyCheckboxes(containerId,checkedIds,availableIds){
-  const container=document.getElementById(containerId);
-  const toShow=availableIds?allSocieties.filter(s=>availableIds.includes(s.id)):allSocieties;
-  container.innerHTML=toShow.map(s=>`<label class="checkbox-item ${checkedIds.includes(s.id)?'checked':''}" onclick="this.classList.toggle('checked');if(this.closest('#submit-societies'))updateSubmitFormForSettings();">
-    <input type="checkbox" value="${s.id}" ${checkedIds.includes(s.id)?'checked':''}/>${esc(s.short_name||s.name)}</label>`).join('');
+async function confirmReject() {
+  const comment = document.getElementById('rejection-comment').value.trim();
+  try {
+    await api('setRouteStatus', { routeId: rejectCtx.routeId, societyId: rejectCtx.societyId, status: 'rejected', rejection_comment: comment });
+    const s = caSubmissions.find(x => x.route_id === rejectCtx.routeId);
+    if (s) { s.status = 'rejected'; s.rejection_comment = comment; }
+    closeModal('reject-modal');
+    renderCASubmissions();
+  } catch (err) { alert(err.message); }
 }
-function getChecked(containerId){return Array.from(document.querySelectorAll('#'+containerId+' input:checked')).map(cb=>cb.value);}
-function v(id){return(document.getElementById(id)||{}).value?.trim()||'';}
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-function openModal(id){document.getElementById(id).classList.add('open');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-function showEl(id,msg){const el=document.getElementById(id);if(msg!==undefined)el.textContent=msg;el.style.display='block';}
-function hideEl(id){document.getElementById(id).style.display='none';}
-function setBtnLoading(id,loading,label){const el=document.getElementById(id);el.disabled=loading;el.textContent=label;}
-function fmtDate(d){
-  if(!d) return '—';
+
+// ── SIGNATURE ────────────────────────────────────────────
+function compressSig(dataUrl) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = 300; c.height = 90;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 300, 90);
+      ctx.drawImage(img, 0, 0, 300, 90);
+      resolve(c.toDataURL('image/jpeg', 0.3));
+    };
+    img.src = dataUrl;
+  });
+}
+
+function initCanvas() {
+  const c = document.getElementById('sigCanvas');
+  const ctx = c.getContext('2d');
+  c.width  = c.offsetWidth  * devicePixelRatio;
+  c.height = c.offsetHeight * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.strokeStyle = '#111111'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const pos = e => {
+    const r = c.getBoundingClientRect(), s = e.touches ? e.touches[0] : e;
+    return { x: s.clientX - r.left, y: s.clientY - r.top };
+  };
+  c.onmousedown = c.ontouchstart = e => { e.preventDefault(); isDrawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+  c.onmousemove = c.ontouchmove  = e => { e.preventDefault(); if (!isDrawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+  c.onmouseup   = c.ontouchend   = () => { isDrawing = false; sigData = c.toDataURL(); };
+}
+
+function clearSig() {
+  const c = document.getElementById('sigCanvas');
+  c.getContext('2d').clearRect(0, 0, c.width, c.height);
+  sigData = null;
+}
+
+// ── HELPERS ──────────────────────────────────────────────
+function buildSocietyCheckboxes(containerId, checkedIds, availableIds) {
+  const container = document.getElementById(containerId);
+  const toShow = availableIds
+    ? allSocieties.filter(s => availableIds.includes(s.id))
+    : allSocieties;
+  container.innerHTML = toShow.map(s =>
+    `<label class="checkbox-item ${checkedIds.includes(s.id) ? 'checked' : ''}"
+      onclick="this.classList.toggle('checked');if(this.closest('#submit-societies'))updateSubmitFormForSettings();">
+      <input type="checkbox" value="${s.id}" ${checkedIds.includes(s.id) ? 'checked' : ''}/>${esc(s.short_name || s.name)}</label>`
+  ).join('');
+}
+
+function getChecked(containerId) {
+  return Array.from(document.querySelectorAll('#' + containerId + ' input:checked')).map(cb => cb.value);
+}
+
+function v(id) { return (document.getElementById(id) || {}).value?.trim() || ''; }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showEl(id, msg) { const el = document.getElementById(id); if (msg !== undefined) el.textContent = msg; el.style.display = 'block'; }
+function hideEl(id)      { document.getElementById(id).style.display = 'none'; }
+function setBtnLoading(id, loading, label) { const el = document.getElementById(id); el.disabled = loading; el.textContent = label; }
+
+function fmtDate(d) {
+  if (!d) return '—';
+  // Handle Google Sheets Date objects serialized as ISO strings or raw Date-like strings
   const date = new Date(d);
   if (!isNaN(date.getTime())) {
-    const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    return M[date.getMonth()]+' '+date.getDate()+', '+date.getFullYear();
+    const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return M[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
   }
   // Fallback for YYYY-MM-DD strings
-  const[y,m,day]=String(d).split('-'),Mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return Mo[+m-1]+' '+(+day)+', '+y;
+  const [y, m, day] = String(d).split('-');
+  const Mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return Mo[+m - 1] + ' ' + (+day) + ', ' + y;
 }
-function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 </script>
-<div class="modal-backdrop" id="change-password-modal">
-  <div class="modal" style="width:420px">
-    <div class="modal-head"><div class="modal-title">Set a New Password</div></div>
-    <div class="modal-body">
-      <div class="info-msg" style="margin-bottom:16px">You're using a temporary password. Please set a new one before continuing.</div>
-      <div id="cp-error" class="error-msg"></div>
-      <div class="field"><label>New Password</label><input type="password" id="cp-new" placeholder="Min 8 characters"/></div>
-      <div class="field"><label>Confirm Password</label><input type="password" id="cp-confirm" placeholder="Repeat new password"/></div>
-    </div>
-    <div class="modal-foot"><button class="btn-gold" onclick="saveNewPassword()">Save Password</button></div>
-  </div>
-</div>
 </body>
 </html>
-

@@ -534,23 +534,14 @@ const API_URL = 'https://us-central1-thane-5dc8c.cloudfunctions.net/api';';
 
 // ── API ──────────────────────────────────────────────────
 function api(action, payload) {
-  return new Promise((resolve, reject) => {
-    const token  = localStorage.getItem('hh_token') || '';
-    const body   = JSON.stringify({ action, payload: payload || {}, token });
-    const cbName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-    const url    = API_URL + '?data=' + encodeURIComponent(body) + '&callback=' + cbName;
-    const s      = document.createElement('script');
-
-    let done = false;
-    const cleanup = () => { done = true; delete window[cbName]; try { document.head.removeChild(s); } catch(_) {} };
-
-    window[cbName] = d => { cleanup(); if (d.error) reject(new Error(d.error)); else resolve(d); };
-    s.onerror = () => { cleanup(); reject(new Error('Network error — check API URL')); };
-    setTimeout(() => { if (!done) { cleanup(); reject(new Error('Request timed out')); } }, 45000);
-
-    s.src = url;
-    document.head.appendChild(s);
-  });
+  const token = localStorage.getItem('hh_token') || '';
+  return fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, payload: payload || {}, token })
+  })
+  .then(r => r.json())
+  .then(d => { if (d.error) throw new Error(d.error); return d; });
 }
 
 // ── STATE ────────────────────────────────────────────────

@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Thane</title>
-<link rel="icon" type="image/png" href="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png">
+<link rel="icon" type="image/png" href="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -148,16 +148,41 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
   .filter-row{flex-direction:column}
   .filter-row input,.filter-row select{width:100%}
   .approve-count{display:none}
+  .progress-bar-wrap{margin-top:12px}
+.progress-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:5px}
+.progress-bar-track{height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:99px;background:var(--gold);transition:width 0.4s ease}
+.progress-bar-fill.complete{background:var(--success)}
+.goal-period-tag{font-size:10px;color:var(--text-light);margin-top:4px}
 }
 </style>
 </head>
+<div class="modal-backdrop" id="add-student-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-head">
+      <div class="modal-title">Add Student</div>
+      <button class="modal-close" onclick="closeModal('add-student-modal')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div id="add-student-error" class="error-msg"></div>
+      <div id="add-student-success" class="success-msg"></div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">The student will be added with a default password of <strong>1234567890</strong> and automatically approved for this society. If they already have an account it will be matched and updated.</p>
+      <div class="field"><label>Full Name</label><input type="text" id="add-student-name" placeholder="Jane Smith"/></div>
+      <div class="field"><label>Username</label><input type="text" id="add-student-user" placeholder="jsmith23"/></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-secondary" onclick="closeModal('add-student-modal')">Cancel</button>
+      <button class="btn-gold" id="add-student-btn" onclick="doAddStudent()">Add Student</button>
+    </div>
+  </div>
+</div>
 <body>
 
 <!-- LOGIN -->
 <div id="login-screen" class="screen active">
   <div class="login-card">
     <div class="login-header">
-    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
+    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
       <div class="login-sub">Honor Society Hours Portal</div>
     </div>
     <div id="login-form">
@@ -165,6 +190,7 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
       <div class="field"><label>Username</label><input type="text" id="login-user" placeholder="e.g. jsmith23"/></div>
       <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••"/></div>
       <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign In</button>
+      <div class="login-toggle">Forgot your password? <button class="link-btn" onclick="showForgotPassword()">Request reset</button></div>
       <div class="login-toggle">Don't have an account? <button class="link-btn" onclick="showRegister()">Request access</button></div>
     </div>
     <div id="register-form" style="display:none">
@@ -183,13 +209,22 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
       <button class="btn-primary" id="reg-btn" onclick="doRegister()">Submit Request</button>
       <div class="login-toggle">Already have an account? <button class="link-btn" onclick="showLogin()">Sign in</button></div>
     </div>
+    <div id="forgot-form" style="display:none">
+  <div id="forgot-success" class="success-msg"></div>
+  <div id="forgot-error" class="error-msg"></div>
+  <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Enter your username and a reset request will be sent to the admin.</p>
+  <div class="field"><label>Username</label><input type="text" id="forgot-user" placeholder="jsmith23"/></div>
+  <button class="btn-primary" id="forgot-btn" onclick="doForgotPassword()">Send Reset Request</button>
+  <div class="login-toggle">Remember your password? <button class="link-btn" onclick="showLogin()">Sign in</button></div>
+</div>
   </div>
 </div>
 
 <!-- STUDENT -->
 <div id="student-screen" class="screen">
   <nav>
-    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
+    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true
+      " style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
     <div class="nav-right"><span class="nav-user" id="student-nav-name"></span><button class="nav-btn" onclick="showAccountModal()">Account</button><button class="nav-btn" onclick="doLogout()">Sign Out</button></div>
   </nav>
   <div class="main-layout">
@@ -215,9 +250,9 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
             <div class="field"><label>Hours Served</label><input type="number" id="evt-hours" min="0.5" max="24" step="0.5" placeholder="2.5"/></div>
             <div class="field full"><label>Sponsor / Organization Name</label><input type="text" id="evt-sponsor" placeholder="e.g. Ms. Johnson — Community Food Bank"/></div>
             <div class="field full"><label>Description (optional)</label><textarea id="evt-desc" placeholder="Brief description of what you did..."></textarea></div>
-            <div class="field full"><label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:14px;cursor:pointer"><input type="checkbox" id="evt-sponsored" style="width:18px;height:18px;accent-color:var(--black)"/> This is a <strong>sponsored</strong> event</label></div>
+            <div class="field full" id="sponsored-field"><label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:14px;cursor:pointer"><input type="checkbox" id="evt-sponsored"/> This is a <strong>sponsored</strong> event</label></div>
             <div class="field full"><label>Submit to Honor Societies</label><div class="checkbox-grid" id="submit-societies"></div></div>
-            <div class="field full"><label>Sponsor Digital Signature</label>
+            <div class="field full" id="sig-field"><label>Sponsor Digital Signature</label>
               <div class="sig-area"><div class="sig-label"><span>Have your sponsor sign below</span><button class="link-btn" onclick="clearSig()">Clear</button></div><canvas id="sigCanvas"></canvas></div>
             </div>
           </div>
@@ -239,7 +274,7 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
 <!-- CLUB ADMIN -->
 <div id="clubadmin-screen" class="screen">
   <nav>
-    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
+    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
     <div class="nav-right">
       <select id="ca-society-select" style="background:rgba(255,255,255,0.1);color:#fff;border:0.5px solid rgba(255,255,255,0.2);padding:6px 12px;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif" onchange="loadClubAdminData()"></select>
       <button class="nav-btn" onclick="doLogout()">Sign Out</button>
@@ -249,7 +284,43 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
     <div class="sidebar">
       <div class="sidebar-section">Club Admin</div>
       <div class="sidebar-link active" onclick="showClubAdminTab('ca-submissions',this)">Submissions</div>
+
       <div class="sidebar-link" onclick="showClubAdminTab('ca-members',this)">Members <span id="ca-pending-badge" class="approve-count" style="margin-left:6px"></span></div>
+      <div id="ca-settings" style="display:none">
+  <div class="page-header"><div class="page-title" id="ca-settings-title">Club Settings</div><div class="page-sub">Configure submission requirements for this society.</div></div>
+  <div class="card"><div class="card-body">
+    <div id="ca-settings-success" class="success-msg"></div>
+    <div id="ca-settings-error" class="error-msg"></div>
+    <div class="section-title" style="margin-bottom:14px">Hour Goal</div>
+<div style="display:flex;gap:16px;align-items:flex-end;margin-bottom:24px;flex-wrap:wrap">
+  <div class="field" style="margin:0;flex:1;min-width:120px">
+    <label>Hours Required</label>
+    <input type="number" id="setting-hour-goal" min="1" max="200" step="1" placeholder="10" style="width:100%"/>
+  </div>
+  <div class="field" style="margin:0;flex:1;min-width:140px">
+    <label>Resets Every</label>
+    <select id="setting-goal-period" style="width:100%;padding:10px 12px;border:0.5px solid var(--border-strong);border-radius:var(--radius);font-size:14px;font-family:'DM Sans',sans-serif;background:var(--white);outline:none">
+      <option value="year">Year</option>
+      <option value="semester">Semester</option>
+    </select>
+  </div>
+</div>
+    <div class="section-title" style="margin-bottom:14px">Submission Requirements</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;padding:14px;border:0.5px solid var(--border-strong);border-radius:var(--radius)">
+        <input type="checkbox" id="setting-signature" style="width:18px;height:18px;accent-color:var(--black);margin-top:2px;flex-shrink:0"/>
+        <div><div style="font-weight:500;font-size:14px">Require Sponsor Signature</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:3px">If disabled, the signature box will not appear on submissions for this society.</div></div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;padding:14px;border:0.5px solid var(--border-strong);border-radius:var(--radius)">
+        <input type="checkbox" id="setting-sponsored" style="width:18px;height:18px;accent-color:var(--black);margin-top:2px;flex-shrink:0"/>
+        <div><div style="font-weight:500;font-size:14px">Track Sponsored Hours</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:3px">If disabled, the sponsored checkbox will not appear and hours will not be split by type.</div></div>
+      </label>
+    </div>
+    <div style="margin-top:20px"><button class="btn-gold" id="save-settings-btn" onclick="saveClubSettings()" style="padding:10px 28px">Save Settings</button></div>
+  </div></div>
+</div>
     </div>
     <div class="content">
       <div id="ca-submissions">
@@ -264,17 +335,21 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
         </table></div></div>
       </div>
       <div id="ca-members" style="display:none">
-        <div class="page-header"><div class="page-title" id="ca-members-title">Members</div><div class="page-sub">Approve or deny membership requests.</div></div>
+        <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+  <div><div class="page-title" id="ca-members-title">Members</div><div class="page-sub">Approve or deny membership requests.</div></div>
+  <button class="btn-gold" onclick="openAddStudentModal()">+ Add Student</button>
+</div>
         <div class="card"><div class="card-body" id="ca-members-list"><div class="loading-state">Loading...</div></div></div>
       </div>
     </div>
   </div>
 </div>
 
+
 <!-- SUPER ADMIN -->
 <div id="superadmin-screen" class="screen">
   <nav>
-    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
+    <div class="login-seal"><img src="https://github.com/BraydenEdelman/GBH-Beta-Club-Hours/blob/main/thanes%20logo.png?raw=true" style="width:36px;height:36px;object-fit:contain"/></div>      <div class="login-title">Thane</div>
     <div class="nav-right"><button class="nav-btn" onclick="exportCSV()">Export CSV</button><button class="nav-btn" onclick="doLogout()">Sign Out</button></div>
   </nav>
   <div class="main-layout">
@@ -284,6 +359,7 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
       <div class="sidebar-link" onclick="showSATab('sa-submissions',this)">All Submissions</div>
       <div class="sidebar-link" onclick="showSATab('sa-roles',this)">Admin Roles</div>
       <div class="sidebar-link" onclick="showSATab('sa-pending',this)">Pending Accounts <span id="sa-pending-badge" class="approve-count" style="margin-left:4px"></span></div>
+      <div class="sidebar-link" onclick="showSATab('sa-resets',this)">Password Resets <span id="sa-resets-badge" class="approve-count" style="margin-left:4px"></span></div>
     </div>
     <div class="content">
       <div id="sa-students">
@@ -317,6 +393,10 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
         <div class="page-header"><div class="page-title">Pending Account Requests</div><div class="page-sub">Approve or deny new student registrations.</div></div>
         <div class="card"><div class="card-body" id="sa-pending-list"><div class="loading-state">Loading...</div></div></div>
       </div>
+      <div id="sa-resets" style="display:none">
+      <div class="page-header"><div class="page-title">Password Reset Requests</div><div class="page-sub">Set a new temporary password for users who have forgotten theirs.</div></div>
+    <div class="card"><div class="card-body" id="sa-resets-list"><div class="loading-state">Loading...</div></div></div>
+  </div>
     </div>
   </div>
 </div>
@@ -401,21 +481,18 @@ canvas#sigCanvas{display:block;width:100%;height:140px;cursor:crosshair;touch-ac
 </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbxuDQliT4S2J0_xc4B6zm7W4iA4DVp8Vrx_-eexYYg_Gdj1y-8AlyYUbHY3Gvewp_eXfg/exec';
+const API_URL = 'https://api-935363440192.us-central1.run.app'
 
-function api(action, payload) {
-  return new Promise((resolve, reject) => {
-    const token  = localStorage.getItem('hh_token') || '';
-    const body   = JSON.stringify({ action, payload: payload || {}, token });
-    const cbName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-    const url    = API_URL + '?data=' + encodeURIComponent(body) + '&callback=' + cbName;
-    window[cbName] = d => { delete window[cbName]; try{document.head.removeChild(s)}catch(_){} if(d.error) reject(new Error(d.error)); else resolve(d); };
-    const s = document.createElement('script');
-    s.src = url;
-    s.onerror = () => { delete window[cbName]; try{document.head.removeChild(s)}catch(_){} reject(new Error('Network error — check API URL')); };
-    setTimeout(() => { if(window[cbName]){ delete window[cbName]; try{document.head.removeChild(s)}catch(_){} reject(new Error('Request timed out')); }}, 20000);
-    document.head.appendChild(s);
+async function api(action, payload) {
+  const token = localStorage.getItem('hh_token') || '';
+  const res   = await fetch(API_URL, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ action, payload: payload || {}, token })
   });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
 }
 
 let currentProfile=null, currentRole=null, adminSocieties=[];
@@ -425,12 +502,26 @@ let saProfiles=[], saSubmissions=[], saRoles=[];
 let sigData=null, isDrawing=false, rejectCtx={}, addRouteSubId=null;
 
 window.addEventListener('DOMContentLoaded', async () => {
-  try { allSocieties = await api('getSocieties'); buildSocietyCheckboxes('reg-societies',[]); } catch(_){}
-  const tok=localStorage.getItem('hh_token'), prof=localStorage.getItem('hh_profile');
-  const rol=localStorage.getItem('hh_role'), adm=localStorage.getItem('hh_admin_societies');
+  try {
+    allSocieties = await api('getSocieties');
+    buildSocietyCheckboxes('reg-societies', []);
+  } catch (_) {}
+
+  const tok = localStorage.getItem('hh_token');
+  const prof = localStorage.getItem('hh_profile');
+  const rol = localStorage.getItem('hh_role');
+  const adm = localStorage.getItem('hh_admin_societies');
+
   if (tok && prof) {
-    currentProfile=JSON.parse(prof); currentRole=rol; adminSocieties=adm?JSON.parse(adm):[];
+    currentProfile = JSON.parse(prof);
+    currentRole = rol;
+    adminSocieties = adm ? JSON.parse(adm) : [];
+
     await bootScreen();
+
+    if (currentProfile.password === '1234567890') {
+      openChangePasswordModal();
+    }
   }
 });
 
@@ -438,6 +529,36 @@ async function bootScreen() {
   if (currentRole==='superadmin') { showScreen('superadmin-screen'); await loadSAData(); }
   else if (currentRole==='clubadmin') { showScreen('clubadmin-screen'); buildCASocietySelect(); await loadClubAdminData(); }
   else { showStudentScreen(); }
+}
+
+async function loadResetRequests() {
+  try {
+    const requests = await api('getResetRequests');
+    renderResetRequests(requests);
+    const b = document.getElementById('sa-resets-badge');
+    b.textContent = requests.length || '';
+    b.style.display = requests.length ? 'inline' : 'none';
+  } catch(err) { console.error(err); }
+}
+
+function renderResetRequests(requests) {
+  const list = document.getElementById('sa-resets-list');
+  if (!requests.length) { list.innerHTML = '<div class="empty-state">No pending reset requests.</div>'; return; }
+  list.innerHTML = requests.map(r => `
+    <div class="sub-row">
+      <div><div style="font-weight:500">${esc(r.full_name)}</div>
+      <div style="font-size:12px;color:var(--text-muted)">@${esc(r.username)} · Requested ${fmtDate(r.requested_at.split('T')[0])}</div></div>
+      <button class="btn-gold" style="padding:5px 12px;font-size:12px" onclick="openResetPasswordModal('${r.user_id}','${r.username}')">Reset Password</button>
+    </div>`).join('');
+}
+
+function openResetPasswordModal(userId, username) {
+  const newPass = prompt(`Set a new temporary password for @${username} (min 8 characters):`);
+  if (!newPass) return;
+  if (newPass.length < 8) { alert('Password must be at least 8 characters.'); return; }
+  api('resetUserPassword', { userId, newPassword: newPass })
+    .then(() => { alert(`Password reset successfully. Tell ${username} their new password is: ${newPass}`); loadResetRequests(); })
+    .catch(err => alert(err.message));
 }
 
 document.addEventListener('keydown', e => {
@@ -457,10 +578,12 @@ async function doLogin() {
     localStorage.setItem('hh_admin_societies',JSON.stringify(res.adminSocieties||[]));
     currentProfile=res.profile; currentRole=res.role; adminSocieties=res.adminSocieties||[];
     await bootScreen();
+    currentProfile=res.profile; currentRole=res.role; adminSocieties=res.adminSocieties||[];
+    await bootScreen();
+    if (password === '1234567890') openChangePasswordModal();
   } catch(err){showEl('login-error',err.message);}
   setBtnLoading('login-btn',false,'Sign In');
 }
-
 async function doRegister() {
   const first=v('reg-first'),last=v('reg-last'),user=v('reg-user'),pass=v('reg-pass'),grade=v('reg-grade'),socs=getChecked('reg-societies');
   hideEl('reg-error'); hideEl('reg-success');
@@ -491,6 +614,24 @@ async function doLogout() {
 }
 
 function showRegister(){document.getElementById('login-form').style.display='none';document.getElementById('register-form').style.display='block';}
+function showForgotPassword() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('register-form').style.display = 'none';
+  document.getElementById('forgot-form').style.display = 'block';
+  hideEl('forgot-error'); hideEl('forgot-success');
+}
+
+async function doForgotPassword() {
+  const username = v('forgot-user');
+  hideEl('forgot-error'); hideEl('forgot-success');
+  if (!username) { showEl('forgot-error', 'Please enter your username.'); return; }
+  setBtnLoading('forgot-btn', true, 'Sending...');
+  try {
+    await api('requestPasswordReset', { username });
+    showEl('forgot-success', 'Reset request sent! The admin will contact you with a new password.');
+  } catch(err) { showEl('forgot-error', err.message); }
+  setBtnLoading('forgot-btn', false, 'Send Reset Request');
+}
 function showLogin(){document.getElementById('register-form').style.display='none';document.getElementById('login-form').style.display='block';}
 
 // ── STUDENT ──
@@ -500,7 +641,23 @@ async function showStudentScreen() {
   showScreen('student-screen');
   await loadStudentData();
 }
+function openChangePasswordModal() {
+  document.getElementById('cp-new').value = '';
+  document.getElementById('cp-confirm').value = '';
+  hideEl('cp-error');
+  openModal('change-password-modal');
+}
 
+async function saveNewPassword() {
+  const newPass = v('cp-new'), confirm = v('cp-confirm');
+  hideEl('cp-error');
+  if (!newPass || newPass.length < 8) { showEl('cp-error', 'Password must be at least 8 characters.'); return; }
+  if (newPass !== confirm) { showEl('cp-error', 'Passwords do not match.'); return; }
+  try {
+    await api('changeMyPassword', { newPassword: newPass });
+    closeModal('change-password-modal');
+  } catch(err) { showEl('cp-error', err.message); }
+}
 async function loadStudentData() {
   try {
     const data = await api('getStudentBootData');
@@ -521,12 +678,27 @@ function renderStudentDashboard() {
     const subs=mySubmissions.filter(sub=>sub.routes&&sub.routes.some(r=>r.society_id===m.society_id));
     const appHrs=subs.reduce((a,sub)=>{const r=sub.routes.find(r=>r.society_id===m.society_id);return a+(r&&r.status==='approved'?sub.hours:0);},0);
     const penHrs=subs.reduce((a,sub)=>{const r=sub.routes.find(r=>r.society_id===m.society_id);return a+(r&&r.status==='pending'?sub.hours:0);},0);
-    html+=`<div class="society-card"><div class="society-card-name">${esc(soc.name||m.society_id)}</div><div class="society-card-short">${esc(soc.short_name||'')}</div>
-      <div class="society-stats">
-        <div class="society-stat"><div class="society-stat-val">${appHrs}</div><div class="society-stat-label">Approved hrs</div></div>
-        <div class="society-stat"><div class="society-stat-val">${penHrs}</div><div class="society-stat-label">Pending hrs</div></div>
-        <div class="society-stat"><div class="society-stat-val">${subs.length}</div><div class="society-stat-label">Submissions</div></div>
-      </div></div>`;
+   const goal    = soc.hour_goal   || 10;
+const period  = soc.goal_period || 'year';
+const pct     = Math.min(100, Math.round((appHrs / goal) * 100));
+const complete = appHrs >= goal;
+html += `<div class="society-card">
+  <div class="society-card-name">${esc(soc.name || m.society_id)}</div>
+  <div class="society-card-short">${esc(soc.short_name || '')}</div>
+  <div class="society-stats">
+    <div class="society-stat"><div class="society-stat-val">${appHrs}</div><div class="society-stat-label">Approved hrs</div></div>
+    <div class="society-stat"><div class="society-stat-val">${penHrs}</div><div class="society-stat-label">Pending hrs</div></div>
+    <div class="society-stat"><div class="society-stat-val">${subs.length}</div><div class="society-stat-label">Submissions</div></div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-label">
+      <span>${complete ? '✓ Goal reached' : `${appHrs} / ${goal} hrs`}</span>
+      <span>${pct}%</span>
+    </div>
+    <div class="progress-bar-track"><div class="progress-bar-fill ${complete ? 'complete' : ''}" style="width:${pct}%"></div></div>
+    <div class="goal-period-tag">Goal resets per ${period}</div>
+  </div>
+</div>`;
   });
   pending.forEach(m=>{
     const soc=allSocieties.find(s=>s.id===m.society_id)||{};
@@ -626,6 +798,18 @@ function showStudentTab(tab,el) {
 
 function buildSubmitSocieties() {
   buildSocietyCheckboxes('submit-societies',[],myMemberships.filter(m=>m.approved).map(m=>m.society_id));
+  updateSubmitFormForSettings();
+}
+
+function updateSubmitFormForSettings() {
+  const ids = getChecked('submit-societies');
+  const selected = allSocieties.filter(s => ids.includes(s.id));
+  const needsSig      = ids.length === 0 || selected.some(s => s.requires_signature !== false);
+  const needsSponsored = ids.length === 0 || selected.some(s => s.requires_sponsored !== false);
+  const sigField      = document.getElementById('sig-field');
+  const sponField     = document.getElementById('sponsored-field');
+  if (sigField)  sigField.style.display  = needsSig       ? '' : 'none';
+  if (sponField) sponField.style.display = needsSponsored ? '' : 'none';
 }
 function buildHistoryFilters() {
   const sel=document.getElementById('history-filter-society');
@@ -637,20 +821,32 @@ async function submitHours() {
   const event_name=v('evt-name'),event_date=v('evt-date'),hours=parseFloat(v('evt-hours')),sponsor=v('evt-sponsor');
   const description=v('evt-desc'),is_sponsored=document.getElementById('evt-sponsored').checked;
   const society_ids=getChecked('submit-societies');
+  const _sel=allSocieties.filter(s=>society_ids.includes(s.id));
+  const _needsSig=_sel.length===0||_sel.some(s=>s.requires_signature!==false);
+  const _needsSpon=_sel.some(s=>s.requires_sponsored!==false);
   hideEl('submit-error'); hideEl('submit-success');
   if(!event_name||!event_date||!hours||!sponsor){showEl('submit-error','Please fill in all required fields.');return;}
   if(!society_ids.length){showEl('submit-error','Please select at least one honor society.');return;}
-  if(!sigData){showEl('submit-error','A sponsor signature is required.');return;}
+  if(_needsSig&&!sigData){showEl('submit-error','A sponsor signature is required by one or more selected societies.');return;}
   setBtnLoading('submit-btn',true,'Submitting...');
   try {
-    const compressed=await compressSig(sigData);
-    await api('submitHours',{event_name,event_date,hours,sponsor,description,is_sponsored,signature_base64:compressed,society_ids});
+    const finalSponsored=_needsSpon?is_sponsored:false;
+    // Step 1: submit without signature
+    const res=await api('submitHours',{event_name,event_date,hours,sponsor,description,is_sponsored:finalSponsored,society_ids});
+    // Step 2: upload signature separately if needed
+    if(_needsSig&&sigData&&res.id){
+      const compressed=await compressSig(sigData);
+      await api('uploadSignature',{submissionId:res.id,signature_url:compressed});
+    }
     showEl('submit-success','Submission received! The respective admins will review it.');
     ['evt-name','evt-date','evt-hours','evt-sponsor','evt-desc'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('evt-sponsored').checked=false;
     document.querySelectorAll('#submit-societies input').forEach(cb=>cb.checked=false);
     document.querySelectorAll('#submit-societies .checkbox-item').forEach(el=>el.classList.remove('checked'));
-    clearSig(); mySubmissions=await api('getMySubmissions');
+    clearSig();
+    const refreshed=await api('getStudentBootData');
+    mySubmissions=refreshed.submissions||[];
+    myMemberships=refreshed.memberships||[];
   } catch(err){showEl('submit-error',err.message);}
   setBtnLoading('submit-btn',false,'Submit for Approval');
 }
@@ -661,6 +857,58 @@ function buildCASocietySelect() {
   const socs=allSocieties.filter(s=>adminSocieties.includes(s.id));
   sel.innerHTML=socs.map(s=>`<option value="${s.id}">${esc(s.short_name)}</option>`).join('');
   currentCASociety=socs[0]?.id||null;
+}
+function openAddStudentModal() {
+  document.getElementById('add-student-name').value = '';
+  document.getElementById('add-student-user').value = '';
+  hideEl('add-student-error');
+  hideEl('add-student-success');
+  openModal('add-student-modal');
+}
+async function loadClubSettings() {
+  try {
+    const settings = await api('getClubSettings', { societyId: currentCASociety });
+    const sigCb  = document.getElementById('setting-signature');
+    const sponCb = document.getElementById('setting-sponsored');
+    document.getElementById('setting-hour-goal').value   = settings.hour_goal   || 10;
+document.getElementById('setting-goal-period').value = settings.goal_period  || 'year';
+    if (sigCb)  sigCb.checked  = settings.requires_signature !== false;
+    if (sponCb) sponCb.checked = settings.requires_sponsored !== false;
+    const soc = allSocieties.find(s => s.id === currentCASociety) || {};
+    document.getElementById('ca-settings-title').textContent = (soc.name || 'Club') + ' — Settings';
+  } catch(err) { console.error('loadClubSettings:', err); }
+}
+
+async function saveClubSettings() {
+  const requires_signature = document.getElementById('setting-signature').checked;
+  const requires_sponsored = document.getElementById('setting-sponsored').checked;
+  const hour_goal   = parseInt(document.getElementById('setting-hour-goal').value)  || 10;
+const goal_period = document.getElementById('setting-goal-period').value;
+  hideEl('ca-settings-error'); hideEl('ca-settings-success');
+  setBtnLoading('save-settings-btn', true, 'Saving...');
+  try {
+await api('updateClubSettings', { societyId: currentCASociety, requires_signature, requires_sponsored, hour_goal, goal_period });    const soc = allSocieties.find(s => s.id === currentCASociety);
+if (soc) { soc.requires_signature = requires_signature; soc.requires_sponsored = requires_sponsored; soc.hour_goal = hour_goal; soc.goal_period = goal_period; }    showEl('ca-settings-success', 'Settings saved successfully.');
+  } catch(err) { showEl('ca-settings-error', err.message); }
+  setBtnLoading('save-settings-btn', false, 'Save Settings');
+}
+async function doAddStudent() {
+  const fullName = v('add-student-name');
+  const username = v('add-student-user');
+  hideEl('add-student-error'); hideEl('add-student-success');
+  if (!fullName || !username) { showEl('add-student-error', 'Please fill in both fields.'); return; }
+  setBtnLoading('add-student-btn', true, 'Adding...');
+  try {
+    const res = await api('addStudentToClub', { fullName, username, societyId: currentCASociety });
+    showEl('add-student-success', `${res.fullName} has been added successfully.`);
+    document.getElementById('add-student-name').value = '';
+    document.getElementById('add-student-user').value = '';
+    // Refresh members list
+    const data = await api('getClubBootData', { societyId: currentCASociety });
+    caMembers = data.members || [];
+    renderCAMembers(); updateCAPendingBadge();
+  } catch(err) { showEl('add-student-error', err.message); }
+  setBtnLoading('add-student-btn', false, 'Add Student');
 }
 
 async function loadClubAdminData() {
@@ -673,7 +921,7 @@ async function loadClubAdminData() {
     const data = await api('getClubBootData',{societyId:currentCASociety});
     caSubmissions = data.submissions || [];
     caMembers     = data.members     || [];
-    renderCASubmissions(); renderCAMembers(); updateCAPendingBadge();
+    renderCASubmissions(); renderCAMembers(); updateCAPendingBadge(); loadClubSettings();
   } catch(err){console.error(err);}
 }
 
@@ -753,7 +1001,7 @@ function updateCAPendingBadge(){const count=caMembers.filter(m=>!m.approved).len
 
 function showClubAdminTab(tab,el){
   document.querySelectorAll('#clubadmin-screen .sidebar-link').forEach(l=>l.classList.remove('active')); el.classList.add('active');
-  ['ca-submissions','ca-members'].forEach(id=>document.getElementById(id).style.display='none');
+  ['ca-submissions','ca-members','ca-settings'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById(tab).style.display='block';
 }
 
@@ -766,14 +1014,12 @@ async function loadSAData() {
     saRoles       = data.roles       || [];
     if (data.societies && data.societies.length) allSocieties = data.societies;
     renderSAStudents(); renderSASubmissions(); renderSARoles(); renderSAPending();
-    buildSASocietyFilter(); updateSAPendingBadge(); populateRoleSelects();
-  } catch(err){console.error(err);}
+    buildSASocietyFilter(); updateSAPendingBadge(); populateRoleSelects(); loadResetRequests();  } catch(err){console.error(err);}
 }
 
 function showSATab(tab,el){
   document.querySelectorAll('#superadmin-screen .sidebar-link').forEach(l=>l.classList.remove('active')); el.classList.add('active');
-  ['sa-students','sa-submissions','sa-roles','sa-pending'].forEach(id=>document.getElementById(id).style.display='none');
-  document.getElementById(tab).style.display='block';
+  ['sa-students','sa-submissions','sa-roles','sa-pending','sa-resets'].forEach(id=>document.getElementById(id).style.display='none');  document.getElementById(tab).style.display='block';
 }
 
 function renderSAStudents(){
@@ -894,15 +1140,14 @@ async function confirmReject(){
 }
 
 // ── SIGNATURE ──
-function compressSig(dataUrl){return new Promise(resolve=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=400;c.height=120;const ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,400,120);ctx.drawImage(img,0,0,400,120);resolve(c.toDataURL('image/jpeg',0.5));};img.src=dataUrl;});}
-function initCanvas(){const c=document.getElementById('sigCanvas'),ctx=c.getContext('2d');c.width=c.offsetWidth*devicePixelRatio;c.height=c.offsetHeight*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio);ctx.strokeStyle='#111111';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';const pos=e=>{const r=c.getBoundingClientRect(),s=e.touches?e.touches[0]:e;return{x:s.clientX-r.left,y:s.clientY-r.top};};c.onmousedown=c.ontouchstart=e=>{e.preventDefault();isDrawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);};c.onmousemove=c.ontouchmove=e=>{e.preventDefault();if(!isDrawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();};c.onmouseup=c.ontouchend=()=>{isDrawing=false;sigData=c.toDataURL();};}
+function compressSig(dataUrl){return new Promise(resolve=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=300;c.height=90;const ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,300,90);ctx.drawImage(img,0,0,300,90);resolve(c.toDataURL('image/jpeg',0.3));};img.src=dataUrl;});}function initCanvas(){const c=document.getElementById('sigCanvas'),ctx=c.getContext('2d');c.width=c.offsetWidth*devicePixelRatio;c.height=c.offsetHeight*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio);ctx.strokeStyle='#111111';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';const pos=e=>{const r=c.getBoundingClientRect(),s=e.touches?e.touches[0]:e;return{x:s.clientX-r.left,y:s.clientY-r.top};};c.onmousedown=c.ontouchstart=e=>{e.preventDefault();isDrawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);};c.onmousemove=c.ontouchmove=e=>{e.preventDefault();if(!isDrawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();};c.onmouseup=c.ontouchend=()=>{isDrawing=false;sigData=c.toDataURL();};}
 function clearSig(){const c=document.getElementById('sigCanvas');c.getContext('2d').clearRect(0,0,c.width,c.height);sigData=null;}
 
 // ── HELPERS ──
 function buildSocietyCheckboxes(containerId,checkedIds,availableIds){
   const container=document.getElementById(containerId);
   const toShow=availableIds?allSocieties.filter(s=>availableIds.includes(s.id)):allSocieties;
-  container.innerHTML=toShow.map(s=>`<label class="checkbox-item ${checkedIds.includes(s.id)?'checked':''}" onclick="this.classList.toggle('checked')">
+  container.innerHTML=toShow.map(s=>`<label class="checkbox-item ${checkedIds.includes(s.id)?'checked':''}" onclick="this.classList.toggle('checked');if(this.closest('#submit-societies'))updateSubmitFormForSettings();">
     <input type="checkbox" value="${s.id}" ${checkedIds.includes(s.id)?'checked':''}/>${esc(s.short_name||s.name)}</label>`).join('');
 }
 function getChecked(containerId){return Array.from(document.querySelectorAll('#'+containerId+' input:checked')).map(cb=>cb.value);}
@@ -913,9 +1158,32 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 function showEl(id,msg){const el=document.getElementById(id);if(msg!==undefined)el.textContent=msg;el.style.display='block';}
 function hideEl(id){document.getElementById(id).style.display='none';}
 function setBtnLoading(id,loading,label){const el=document.getElementById(id);el.disabled=loading;el.textContent=label;}
-function fmtDate(d){if(!d)return'—';const[y,m,day]=String(d).split('-'),M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return M[+m-1]+' '+(+day)+', '+y;}
+function fmtDate(d){
+  if(!d) return '—';
+  const date = new Date(d);
+  if (!isNaN(date.getTime())) {
+    const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return M[date.getMonth()]+' '+date.getDate()+', '+date.getFullYear();
+  }
+  // Fallback for YYYY-MM-DD strings
+  const[y,m,day]=String(d).split('-'),Mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return Mo[+m-1]+' '+(+day)+', '+y;
+}
 function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
+<div class="modal-backdrop" id="change-password-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-head"><div class="modal-title">Set a New Password</div></div>
+    <div class="modal-body">
+      <div class="info-msg" style="margin-bottom:16px">You're using a temporary password. Please set a new one before continuing.</div>
+      <div id="cp-error" class="error-msg"></div>
+      <div class="field"><label>New Password</label><input type="password" id="cp-new" placeholder="Min 8 characters"/></div>
+      <div class="field"><label>Confirm Password</label><input type="password" id="cp-confirm" placeholder="Repeat new password"/></div>
+    </div>
+    <div class="modal-foot"><button class="btn-gold" onclick="saveNewPassword()">Save Password</button></div>
+  </div>
+</div>
 </body>
 </html>
+
